@@ -30,7 +30,7 @@ const Messages = ({optionSelected ,room, user, profile, MessagesData, MessagesRo
     useEffect(()=>{
         socket?.on('muted', setstat)
     }, [socket])
-
+    user && console.log(user);
   return (
 
     <div className='messages-container'> 
@@ -47,7 +47,7 @@ const Messages = ({optionSelected ,room, user, profile, MessagesData, MessagesRo
 
                             <div className="text">
                                 <p className='friend-nm'>{user.login}</p>
-                                {/* <p className='friend-stat'>online</p> */}
+                                <p className='friend-stat'>{user.status}</p>
                             </div>
                         </>
                     }

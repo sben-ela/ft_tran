@@ -4,10 +4,19 @@ import "./friends.css"
 import { useSocket } from "../../../Socket";
 // MessagebyId={MessagebyId}
 // setMessageById={setMessagebyId}
-const Friends_discusion = ({friendsData ,selectedUser,userSelect, SetNotifs, Notifs, SetMessages, MesagesById,SetMessagesById, selectedFriendId,setSelectedFriendId}) => {
+const Friends_discusion = ({
+  friendsData ,
+  selectedUser,
+  userSelect, 
+  SetNotifs,
+  Notifs,
+  SetMessages,
+  MesagesById,
+  SetMessagesById,
+  selectedFriendId,
+  setSelectedFriendId
+}) => {
 
-  
-  // console.log(friendsData);
   const socket = useSocket();
   
   const handleFriendClick = (friend , friendId) => {
@@ -21,8 +30,6 @@ const Friends_discusion = ({friendsData ,selectedUser,userSelect, SetNotifs, Not
   };
   
 
-  console.log("data -> ",friendsData);
-  //  converts the object's values into an array
   return ( 
     <div>
       {friendsData && friendsData.map((friend) => (

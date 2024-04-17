@@ -1,7 +1,7 @@
 import React from 'react';
 import "./Punk.css";
 import MenuBar from "./MenuBar/MenuBar";
-import ListMatch from "./MatchHistory/Match"
+import GameModes from "../game/GameModes/GameModes"
 import Friends from "./friends/friend"
 import Infos from "./Infos/infos"
 import  {useState, useEffect} from 'react'
@@ -16,7 +16,7 @@ import { useSocket }  from "../../component/Socket"
 const images = [im1, im2, im3, im4];
 
 
-const Punk = () => {
+const Punk = ({user, SetgoGame}) => {
   const socket = useSocket();
 
   
@@ -26,18 +26,20 @@ const Punk = () => {
         <div className='page'>
           
 
-            <Infos/>
+            <Infos user={user}/>
 
         
             <Friends />
           
 
-            <ListMatch />
+            <GameModes SetgoGame={SetgoGame}/>
+
 
 
         </div>
-
-        <MenuBar/>
+      {
+        user &&  <MenuBar user={user}/>
+      }
     </div>
   )
 }

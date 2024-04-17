@@ -44,6 +44,10 @@ export class AuthService{
         this.userRepository.save(user);
         return user;
     }
+    async saveuser(user:User)
+    {
+       return await this.userRepository.save(user);
+    }
     async findUserbylogin(login)
     {
         const user= await this.userRepository.findOneBy({login});
@@ -148,7 +152,13 @@ export class AuthService{
       return this.userRepository.update(userId, {
         isTwoFactorAuthenticationEnabled: true
       });
+      
     }
+    async turnOffTwoFactorAuthentication(userId: number) {
+
+      return this.userRepository.update(userId, {
+        isTwoFactorAuthenticationEnabled: false
+      });}
     
   
   

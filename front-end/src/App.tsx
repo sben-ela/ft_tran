@@ -8,31 +8,56 @@ import axios from 'axios';
 import StartGame from './component/game/StartGame';
 import { useSocket } from './component/Socket';
 import UserProfile from './component/UserProfile/UserProfile';
+import ChangeProfile from './component/ChangeInfos/ChangeInfos';
+import GameRequest from './component/Modals/GameRequest/gamereq';
+import FirstPage from './component/game/FirstPage';
+import OnlineMatching from './component/game/OnlineMatching';
 
 function App() {
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const socket = useSocket();
+  const[fetchuser,setfetchuser] = useState(0);
+  const [showRequest, SetShow] = useState(false);
 
+  useEffect(()=>{
+    socket?.on('updated', ()=> {
+    
+      setfetchuser((prevIsBool) => prevIsBool + 1)});
+  }, [socket])
+
+  useEffect(()=>{
+    socket?.on('invitegame', ()=> {
+    
+      SetShow(true)});
+      setTimeout(() => {
+        SetShow(false);
+      }, 3000);
+  }, [socket])
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
+   
         const resp = await axios.get(`${import.meta.env.VITE_url_back}/api/auth/user`, { withCredentials: true });
         setUser(resp.data);
         
       } catch (error) {
-        setError(error.response.data.message || 'An error occurred');
+        setError(error.response.data.message );
       }
     };
     fetchData();
-  }, []);
+  }, [fetchuser]);
 
-console.log("url back = " , import.meta.env.VITE_url_back);
-  const [errorMessage, setErrorMessage] = useState('');
-  const socket = useSocket();
+
+
+
 
   useEffect(() => {
-    const handleError = () => {
-      setErrorMessage("An error occurred.");
+    const handleError = (mssg) => {
+      console.log(mssg);
+      setErrorMessage(`An error occurred: ${mssg.type}`);
       setTimeout(() => {
         setErrorMessage('');
       }, 1000);
@@ -42,12 +67,28 @@ console.log("url back = " , import.meta.env.VITE_url_back);
     socket?.on('error', handleError);
 
     return () => {
-      socket?.off('error', handleError);
+      socket?.off('error');
     };
   }, [socket]);
+  const canceling = () => {
+    SetShow(false);
+  }
 
+  const matching = () => {
+  }
+  const [render, setRender] = useState(true);
+  useEffect(()=> {
+    if (document.querySelector('canvas[data-engine="three.js r162"]')){
+      setRender(false)
+      console.log("PPPPPPPPPPPPPPP");
+    }
+  },[])
+  const [goGame, SetgoGame] = useState(false)
   return (
     <Router>
+        {
+          showRequest && <GameRequest onSubmit={matching} onCancel={canceling}/>
+        }
         {
           errorMessage && (
           <div className='error-container'>
@@ -74,9 +115,12 @@ console.log("url back = " , import.meta.env.VITE_url_back);
               <>
                 <Route path="/2fa" element={<TwoFa user={user} setError={setError}/>} />
                 <Route path="/" element={<Login user={user} />} />
-                <Route path="/Home" element={<Punk />} />
+                <Route path="/Home" element={<Punk user={user} SetgoGame={SetgoGame}/>} />
                 <Route path="/Game" element={<StartGame/>} />
-                <Route path="/Chat" element={<Chat />} />
+                <Route path="/practice" element={<FirstPage infos={[]} mode='practice' goGame={goGame}/>} />
+                <Route path="/online" element={<OnlineMatching goGame={goGame}/>} />
+                <Route path="/Chat" element={<Chat user={user}/>} />
+                {user && <Route path="/Changeinfo" element={<ChangeProfile user={user} />} />}
                 <Route path="/profile/:userId" element={<UserProfile />} />
               </>
             )

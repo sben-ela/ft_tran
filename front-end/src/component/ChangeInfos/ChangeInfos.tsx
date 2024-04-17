@@ -1,36 +1,21 @@
 
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {motion, AnimatePresence} from 'framer-motion'
-
-import "./editprofile.css"
+import "./ChangeInfos.css"
 import axios from 'axios';
+import { Navigate, useNavigate } from 'react-router-dom';
 
-function EditProfile({ user,ShowEdit, Setedit, onCancel }) {
-    if (!ShowEdit) {
-      return null;
-    }
-
-    const backdrop = {
-        visible : {opacity: 1},
-        hidden: {opacity: 0}
-    }
-
-    const modal = {
-        hidden :{
-            y :"-100vh",
-            opacity: 0 },
-        visible: {
-            y : "200px",
-            opacity: 1,
-            transition : {delay: 0.5}
-        }
-    }
-
+function ChangeProfile({ user })
+{
+    const [change, Setchange]  = useState(false)
+    const navigate = useNavigate(); 
     const [name, setName] = useState(user.login);
     const [image, setImage] = useState(user.avatar);
     const [imagePreviewUrl, setImagePreviewUrl] = useState(user.avatar);
 
+    if(!user.isNew)
+        navigate("/Home", { replace: true });
     const handleNameChange = (e) => {
         setName(e.target.value);
     };
@@ -47,34 +32,51 @@ function EditProfile({ user,ShowEdit, Setedit, onCancel }) {
         reader.readAsDataURL(file);
         }
     };
-    
+
     const handleSubmit = async (e) => {
-        Setedit(false);
         e.preventDefault();
+        
         const formData = new FormData();
         formData.append('name', name);
-        formData.append('avatar', image); 
+        formData.append('avatar', image);
         
-        const response = await axios.post(`${import.meta.env.VITE_url_back}/api/auth/update_user`, formData, {
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_url_back}/api/auth/update_user`, formData, {
+                withCredentials: true,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            console.log("resp = ", response); 
+    
+            if (response.status === 200) {
+                console.log("here llll");
+                Setchange(true);
+            }
+        } catch (error) {
+            console.error("An error occurred:", error);
+        }
     };
+    
+    useEffect(() => {
+        if (change) {
+            navigate("/Home", { replace: true });
+            Setchange(false); 
+        }
+    }, [change, navigate]); 
 
-   
+
+
+    const handleCancel = (e) => {
+        e.preventDefault();
+        Setchange(true); 
+    }
   
     return (
-        <AnimatePresence>
 
-        <motion.div className="modal-backdrop"
-            variants={backdrop}
-            initial="hidden"
-            animate="visible"
-        >
-            <motion.div className="modal-content-settings"
-            variants={modal}>
+        <motion.div className="modal-backdrop-change">
+            <motion.div className="modal-content-settings-change">
+
                 <div className='New-infos'>
                         <p className='choosename'>choose a name</p>
                         <input type="text" placeholder='Enter a name' className='newname' maxLength={8} value={name} onChange={handleNameChange} />
@@ -89,7 +91,7 @@ function EditProfile({ user,ShowEdit, Setedit, onCancel }) {
                 </div>
 
                 <div className="butt-add-modal">
-                    <div className="But-modal submit-But-modal"onClick={handleSubmit}>
+                    <div className="But-modal submit-But-modal" onClick={handleSubmit}>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="36"
@@ -106,7 +108,7 @@ function EditProfile({ user,ShowEdit, Setedit, onCancel }) {
                         </svg>
                     </div>
                     <div className="But-modal Cancel-But-modal"
-                    onClick={onCancel}>
+                    onClick={handleCancel}>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="36"
@@ -126,8 +128,9 @@ function EditProfile({ user,ShowEdit, Setedit, onCancel }) {
 
             </motion.div>
         </motion.div>
-      </AnimatePresence>
+  
 
     );
-  }
-  export default EditProfile
+}
+
+export default ChangeProfile

@@ -1,15 +1,9 @@
-
-
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {motion, AnimatePresence} from 'framer-motion'
 
-import "./editprofile.css"
-import axios from 'axios';
+import "./gamereq.css"
 
-function EditProfile({ user,ShowEdit, Setedit, onCancel }) {
-    if (!ShowEdit) {
-      return null;
-    }
+function GameRequest({onSubmit, onCancel}) {
 
     const backdrop = {
         visible : {opacity: 1},
@@ -26,45 +20,8 @@ function EditProfile({ user,ShowEdit, Setedit, onCancel }) {
             transition : {delay: 0.5}
         }
     }
-
-    const [name, setName] = useState(user.login);
-    const [image, setImage] = useState(user.avatar);
-    const [imagePreviewUrl, setImagePreviewUrl] = useState(user.avatar);
-
-    const handleNameChange = (e) => {
-        setName(e.target.value);
-    };
-
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-        setImage(file);
-        const reader = new FileReader();
-        
-        reader.onloadend = () => {
-            setImagePreviewUrl(reader.result);
-        };
-        reader.readAsDataURL(file);
-        }
-    };
     
-    const handleSubmit = async (e) => {
-        Setedit(false);
-        e.preventDefault();
-        const formData = new FormData();
-        formData.append('name', name);
-        formData.append('avatar', image); 
-        
-        const response = await axios.post(`${import.meta.env.VITE_url_back}/api/auth/update_user`, formData, {
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-    };
-
-   
-  
+    
     return (
         <AnimatePresence>
 
@@ -73,23 +30,11 @@ function EditProfile({ user,ShowEdit, Setedit, onCancel }) {
             initial="hidden"
             animate="visible"
         >
-            <motion.div className="modal-content-settings"
+            <motion.div className="modal-content-add"
             variants={modal}>
-                <div className='New-infos'>
-                        <p className='choosename'>choose a name</p>
-                        <input type="text" placeholder='Enter a name' className='newname' maxLength={8} value={name} onChange={handleNameChange} />
-                
-        
-                        <p className='chooseimg'>choose an avatar</p>
-                        <div className='avatarChose'>
-                            <input className='avatimg' type="file" onChange={handleImageChange} /> 
-                            <img className='preview'  src={imagePreviewUrl} />
-                        </div>
-                   
-                </div>
-
+                <p>you have new game request</p>
                 <div className="butt-add-modal">
-                    <div className="But-modal submit-But-modal"onClick={handleSubmit}>
+                    <div className="But-modal submit-But-modal"onClick={onSubmit}>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="36"
@@ -123,11 +68,10 @@ function EditProfile({ user,ShowEdit, Setedit, onCancel }) {
                         </svg>
                     </div>
                 </div>
-
             </motion.div>
         </motion.div>
       </AnimatePresence>
 
     );
   }
-  export default EditProfile
+  export default GameRequest
