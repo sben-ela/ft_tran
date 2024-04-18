@@ -75,6 +75,16 @@ export class WebsocketService {
         }
       }   
   }
+  emitgameacccepttouser(userId: string,userlogin:string): void {
+    for (const userID of WebsocketService.connectedUsers.keys()) {
+      if (userId == userID)
+      {
+        const userSocket = WebsocketService.connectedUsers.get(userID);
+        if(userSocket)
+            userSocket.emit("acceptGame", {userlog:userlogin});
+        }
+      }   
+  }
 
    checking(userid :string,roomname: string ): boolean
   {

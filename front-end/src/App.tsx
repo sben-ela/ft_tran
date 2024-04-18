@@ -37,7 +37,8 @@ function App() {
       }, 3000);
   }, [socket])
 
-  socket?.on('accept', () => {
+  socket?.on('acceptGame', (recieverName) => {
+    console.log("app acceptGame");
 
   })
   
@@ -116,7 +117,7 @@ return (
               <Route path="/Home" element={<Punk user={user} SetgoGame={SetgoGame}/>} />
               <Route path="/practice" element={<FirstPage infos={[]} mode='practice' goGame={goGame}/>} />
               <Route path="/online" element={<OnlineMatching goGame={goGame}/>} />
-              <Route path="/invite" element={<Invite baseSocket={socket} inviter={gameRequestSender}/>} /> 
+              <Route path="/invite" element={<Invite inviter={gameRequestSender}/>} /> 
 
               <Route path="/Chat" element={<Chat user={user}/>} />
               {user && <Route path="/Changeinfo" element={<ChangeProfile user={user} />} />}

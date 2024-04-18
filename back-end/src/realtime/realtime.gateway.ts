@@ -91,6 +91,12 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     const user = await this.authService.findUser(client.data.user.id);
     this.authService.updatenotification(payload.type, user, payload.senderid);
   }
+  @SubscribeMessage('acceptGame')
+  async acceptGame(client: Socket,id:string)
+  {
+    this.websocketService.emitgameacccepttouser(id,client.data.user.login);
+    console.log("gateway acceptGame");
+  }
   @SubscribeMessage('notifroom')
   async handlenotifroom(client: Socket, roomname: string) {
     const user = await this.authService.findUser(client.data.user.id);

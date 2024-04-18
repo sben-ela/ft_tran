@@ -31,6 +31,8 @@ export class GameGateway implements OnGatewayInit {
 
   @SubscribeMessage('InviteMatching')
   inviteMatching(client : Socket, inveterName : string){
+    console.log("HHHHHHHHHHHHHHHH");
+
     if (!inGame.includes(inveterName)){
       const newRoom = new Room(client.data.user.login);
       newRoom.client1 = client;
@@ -39,7 +41,7 @@ export class GameGateway implements OnGatewayInit {
       this.rooms.set(client.data.user.login, newRoom);
       client.join(client.data.user.login);
       inGame.push(inveterName);
-      console.log("client 1 create : ", client.data.user.login);
+      console.log("SUCCESSSSSSS");
       client.emit('success');
     }
     else{
