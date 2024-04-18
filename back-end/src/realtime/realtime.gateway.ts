@@ -106,8 +106,8 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
       this.websocketService.emitToUser(payload.id.toString(), "invitegame");
     else
       this.websocketService.emiterrorToUser(client.data.user.id, `${toplaywith.login} is already in game`);
-
   }
+
   @SubscribeMessage('newroom')
   async brodcastroom(client: Socket) {
     this.server.to("brodcast").emit('brodcast');
@@ -115,6 +115,21 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   @SubscribeMessage('chatroomselected')
   handleJoinchatRoom(client: Socket, roomname: string): void {
     client.join(roomname);
+
+
+  }
+  @SubscribeMessage('autocomplete')
+  async handleautocomplete(client: Socket, str: string) {
+   let userProfiles
+    if(str !== ''){
+
+      const users = await this.authService.findAllUserswith(str);
+      userProfiles = users.map(user => ({
+        login: user.login,     
+        avatar: user.avatar   
+    }));
+  }
+  this.websocketService.emitusersToUser(client.data.user.id,userProfiles);
 
 
   }

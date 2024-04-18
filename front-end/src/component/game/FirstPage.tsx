@@ -7,7 +7,6 @@ import { useLocation , Navigate} from 'react-router-dom';
 interface props{
 	infos : string[];
     mode : string;
-	socket : Socket;
 	goGame : boolean;
 };
 

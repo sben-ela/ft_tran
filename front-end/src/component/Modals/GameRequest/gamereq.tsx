@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react'
 import {motion, AnimatePresence} from 'framer-motion'
 
 import "./gamereq.css"
+import { Navigate, useNavigate } from 'react-router-dom'
 
-function GameRequest({onSubmit, onCancel}) {
+function GameRequest({SetShow ,user, onCancel}) {
 
     const backdrop = {
         visible : {opacity: 1},
@@ -20,8 +21,12 @@ function GameRequest({onSubmit, onCancel}) {
             transition : {delay: 0.5}
         }
     }
-    
-    
+    const navigate = useNavigate(); 
+    const handleSubmit =()=>{
+        SetShow(false);
+        navigate("/invite", { replace: true });
+    }
+
     return (
         <AnimatePresence>
 
@@ -30,11 +35,14 @@ function GameRequest({onSubmit, onCancel}) {
             initial="hidden"
             animate="visible"
         >
-            <motion.div className="modal-content-add"
+            <motion.div className="modal-content-inv"
             variants={modal}>
-                <p>you have new game request</p>
+                <p className='INVIT'>GAME INVITATION</p>
+                <img src={user.avatar} className='INV-IMG'></img>
+                <p className='INV-NAME'>{user.login}</p>
+                <p className='INV-text'>invited you to play a game</p>
                 <div className="butt-add-modal">
-                    <div className="But-modal submit-But-modal"onClick={onSubmit}>
+                    <div className="But-modal submit-But-modal"onClick={handleSubmit}>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="36"
@@ -50,6 +58,7 @@ function GameRequest({onSubmit, onCancel}) {
                             <path d="M4 12l6 6L20 6" />
                         </svg>
                     </div>
+
                     <div className="But-modal Cancel-But-modal"
                     onClick={onCancel}>
                         <svg

@@ -88,7 +88,6 @@ const My_profile: React.FC<Props> = ({
   useEffect(() => {
     socket?.on("notif", (payload) => {
       SetNotifs((prevNotifs) => [...prevNotifs, { type: payload.type, senderid: payload.senderid }]);
-      Notifs.length > 0 && console.log("hey bro = ", Notifs);
     });
     return () => {
       socket?.off("notif");
@@ -293,7 +292,7 @@ const My_profile: React.FC<Props> = ({
     else if (total > 0) Settotalrooms(total.toString());
     else Settotalrooms("");
   }, [RoomNotifs]);
-
+  Notifs && console.log("chat not-",Notifs)
   return (
     <div className="Myprofile">
       <MyData profileData={profileData}
@@ -436,7 +435,7 @@ const My_profile: React.FC<Props> = ({
           />
         ) : optionSelected === "blocked" ? (
           <Blocked 
-            Blocked={BlockedData}
+            blocked={BlockedData}
             setboolblock={setboolblock}
             userSelect={UserSelceted}
             />
