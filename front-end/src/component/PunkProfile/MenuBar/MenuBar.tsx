@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import "./MenuBar.css";
 import logo from "../../../assets/logoPIngpong.svg";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 
 function Modal({ onClose, isTwoFactorEnabled }) {
+
   const [Qr, SetQr] = useState(null);
   const [showQr, SetShowQr] = useState(false);
   const [code, setcode] = useState("");
@@ -64,7 +65,7 @@ function Modal({ onClose, isTwoFactorEnabled }) {
       }
     }
   };
-
+  console.log('is to factor -> ', isTwoFactorEnabled);
   return (
     <AnimatePresence>
       <motion.div
@@ -125,7 +126,7 @@ function Modal({ onClose, isTwoFactorEnabled }) {
               <button
                 className="saveBut"
                 onClick={(e) => {
-                  e.stopPropagation(); // Stop event propagation
+                  e.stopPropagation();
                   sendConde(code);
                 }}
               >
@@ -166,15 +167,16 @@ function Modal({ onClose, isTwoFactorEnabled }) {
 const MenuBar = ({ user }) => {
   const [Settings, SetSettings] = useState(false);
 
-  const [isTwoFactorEnabled, setIsTwoFactorEnabled] =
-    user && useState(user.isTwoFactorAuthenticationEnabled);
 
+  const navigate = useNavigate()
   const handleModal = () => {
     SetSettings(!Settings);
   };
   
-  const handlogOut = () =>{
-    axios.post(`${import.meta.env.VITE_url_back}/api/auth/logout`, { withCredentials: true })
+  const handlogOut = async () =>{
+    await axios.get(`${import.meta.env.VITE_url_back}/api/auth/logout`, { withCredentials: true });
+    // setUser(null)
+    navigate("/", { replace: true });
   }
 
   return (
@@ -265,10 +267,10 @@ const MenuBar = ({ user }) => {
         </div>
         {/* </div> */}
       </div>
-      {Settings && (
+      {Settings && user && (
         <Modal
           onClose={handleModal}
-          isTwoFactorEnabled={isTwoFactorEnabled}
+          isTwoFactorEnabled={user.isTwoFactorAuthenticationEnabled}
         ></Modal>
       )}
     </>

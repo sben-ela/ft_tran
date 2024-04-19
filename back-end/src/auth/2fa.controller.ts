@@ -20,12 +20,13 @@ import { JwtService } from '@nestjs/jwt';
 import { TwoFactorAuthenticationService } from './2fa.service';
 import { jwtguard } from 'src/guards/jwtguqrd';
 import { AuthService } from 'src/auth/auth.service';
+import { WebsocketService } from 'src/realtime/Websocketservice';
    
   
   @Controller('2fa')
   export class TwoFactorAuthenticationController {
     constructor(
-      private readonly twoFactorAuthenticationService: TwoFactorAuthenticationService,private readonly authService: AuthService,private jwtService: JwtService
+      private readonly twoFactorAuthenticationService: TwoFactorAuthenticationService,private readonly authService: AuthService,private jwtService: JwtService,private readonly websocketService: WebsocketService
     ) {}
     @UseGuards(jwtguard)
     @Get('generate')
@@ -44,13 +45,18 @@ import { AuthService } from 'src/auth/auth.service';
   ) {
     
       const user = request.user as User;
+
     const isCodeValid = this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
         body.twofa, user
       );
       if (!isCodeValid) {
-        throw new UnauthorizedException('Wrong authentication code');
+        
+        this.websocketService.emiterrorToUser(user.id.toString(),"Wrong authentication code")
+        return;
       }
     await this.authService.turnOnTwoFactorAuthentication(user.id);
+    this.websocketService.emitToUser(user.id.toString(),"updated");
+
     
   }
   @UseGuards(jwtguard)
@@ -66,9 +72,13 @@ import { AuthService } from 'src/auth/auth.service';
         body.twofa, user
       );
       if (!isCodeValid) {
-        throw new UnauthorizedException('Wrong authentication code');
+        this.websocketService.emiterrorToUser(user.id.toString(),"Wrong authentication code")
+        return;
+
       }
     await this.authService.turnOffTwoFactorAuthentication(user.id);
+    this.websocketService.emitToUser(user.id.toString(),"updated");
+
     
   }
 
@@ -91,8 +101,8 @@ import { AuthService } from 'src/auth/auth.service';
         body.twofa, user
     );
     if (!isCodeValid) {
-        console.log("error");
-      throw new UnauthorizedException('Wrong authentication code');
+      this.websocketService.emiterrorToUser(user.id.toString(),"Wrong authentication code")
+      return;
     }
     user.HasAccess = true; 
     await this.authService.update(user);

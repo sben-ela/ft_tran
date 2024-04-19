@@ -80,7 +80,7 @@ const Chat = ({user}) => {
                 }
             }
             catch(error){
-                console.log(error)
+                (error)
             }
         }
         getMessages();

@@ -1,4 +1,5 @@
 import { Injectable, Scope } from '@nestjs/common';
+import { log } from 'console';
 import { Socket } from 'socket.io';
 import { User } from 'src/typeorm/entities/User';
 
@@ -20,12 +21,24 @@ export class WebsocketService {
       {
             const userSocket = WebsocketService.connectedUsers.get(userID);
             if(userSocket)
+              {
+                console.log(event ," to ",userID);
                 userSocket.emit(event);
+              }
         }
         
       }   
   }
-  
+  emitgameacccepttouser(userId: string,userlogin:string): void {
+    for (const userID of WebsocketService.connectedUsers.keys()) {
+      if (userId == userID)
+      {
+        const userSocket = WebsocketService.connectedUsers.get(userID);
+        if(userSocket)
+            userSocket.emit("acceptGame", {userlog:userlogin});
+        }
+      }   
+  }
   emitmessgaetouser(client: Socket, payload: {from:string;fromid:string; to: string; content: string }): void {
     const {from,fromid ,to, content } = payload;
     for (const userID of WebsocketService.connectedUsers.keys()) {
@@ -58,9 +71,21 @@ export class WebsocketService {
     for (const userID of WebsocketService.connectedUsers.keys()) {
       if(userId == userID)
       {
+            console.log("herre");
             const userSocket = WebsocketService.connectedUsers.get(userID);
             if(userSocket)
                 userSocket.emit("error",{type:type});
+        }
+        
+      }   
+  }
+  emitgameToUser(userId: string,user:User): void {
+    for (const userID of WebsocketService.connectedUsers.keys()) {
+      if(userId == userID)
+      {
+            const userSocket = WebsocketService.connectedUsers.get(userID);
+            if(userSocket)
+                userSocket.emit("invitegame",user);
         }
         
       }   
@@ -72,16 +97,6 @@ export class WebsocketService {
         const userSocket = WebsocketService.connectedUsers.get(userID);
         if(userSocket)
             userSocket.emit("autocomplete", {users:user});
-        }
-      }   
-  }
-  emitgameacccepttouser(userId: string,userlogin:string): void {
-    for (const userID of WebsocketService.connectedUsers.keys()) {
-      if (userId == userID)
-      {
-        const userSocket = WebsocketService.connectedUsers.get(userID);
-        if(userSocket)
-            userSocket.emit("acceptGame", {userlog:userlogin});
         }
       }   
   }

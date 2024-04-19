@@ -40,7 +40,6 @@ function AddFriendModal({ show, friendName, setFriendName, onSubmit, onCancel })
 
     useEffect(() => {
         socket?.on("autocomplete", (payload) => {
-            console.log(payload);
             Sethelp(payload.users);
             
         });
@@ -62,7 +61,7 @@ const friendClick = (login : string)=>{
     return (
         <AnimatePresence>
 
-        <motion.div className="modal-backdrop"
+        <motion.div className="modal-backdrop-add"
             variants={backdrop}
             initial="hidden"
             animate="visible"

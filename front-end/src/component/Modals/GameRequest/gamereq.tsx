@@ -1,10 +1,14 @@
-import React, { useEffect, useState } from 'react'
+
 import {motion, AnimatePresence} from 'framer-motion'
 
 import "./gamereq.css"
-import { Navigate, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { Socket, io } from 'socket.io-client'
+import { useEffect, useState } from 'react'
 
-function GameRequest({SetShow ,user, onCancel}) {
+function GameRequest({SetShow ,gameRequestSender, onCancel, SetgoGame, setIsSender}) {
+
+    const [gameSocket, setGameSocket] = useState(io())
 
     const backdrop = {
         visible : {opacity: 1},
@@ -21,12 +25,40 @@ function GameRequest({SetShow ,user, onCancel}) {
             transition : {delay: 0.5}
         }
     }
+    useEffect(()=>{
+        const getSocket = async () =>{
+            try {
+                const newsocket =  io(`${import.meta.env.VITE_url_socket}/game`, {
+                    withCredentials: true,
+                    transports: ['websocket']
+                });
+                setGameSocket(newsocket);
+            }
+            catch(e){
+                console.log(e);
+            }
+        }
+        getSocket();
+    },[])
+
     const navigate = useNavigate(); 
+
     const handleSubmit =()=>{
-        SetShow(false);
-        navigate("/invite", { replace: true });
+        console.log("isInGame");
+        gameSocket?.emit('isInGame', gameRequestSender.login);
     }
 
+    gameSocket.on('NotInGame', ()=>{
+        console.log("NotInGame");
+        SetgoGame(true);
+        SetShow(false);
+        setIsSender(false);
+        navigate("/onlineGame", { replace: true });
+    })
+    gameSocket.on('PlayerInGame', ()=>{ // Player In Game ERROORRRR
+        console.log('PlayerInGame');
+        SetShow(false);
+    })
     return (
         <AnimatePresence>
 
@@ -38,8 +70,8 @@ function GameRequest({SetShow ,user, onCancel}) {
             <motion.div className="modal-content-inv"
             variants={modal}>
                 <p className='INVIT'>GAME INVITATION</p>
-                <img src={user.avatar} className='INV-IMG'></img>
-                <p className='INV-NAME'>{user.login}</p>
+                <img src={gameRequestSender.avatar} className='INV-IMG'></img>
+                <p className='INV-NAME'>{gameRequestSender.login}</p>
                 <p className='INV-text'>invited you to play a game</p>
                 <div className="butt-add-modal">
                     <div className="But-modal submit-But-modal"onClick={handleSubmit}>
@@ -58,7 +90,6 @@ function GameRequest({SetShow ,user, onCancel}) {
                             <path d="M4 12l6 6L20 6" />
                         </svg>
                     </div>
-
                     <div className="But-modal Cancel-But-modal"
                     onClick={onCancel}>
                         <svg

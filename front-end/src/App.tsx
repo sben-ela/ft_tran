@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { Login, TwoFa } from './component/Login/Login';
 import './App.css';
 import Punk from './component/PunkProfile/Punk';
@@ -12,6 +12,7 @@ import GameRequest from './component/Modals/GameRequest/gamereq';
 import FirstPage from './component/game/FirstPage';
 import OnlineMatching from './component/game/OnlineMatching';
 import Invite from './component/game/Invite';
+import OnAccept from './component/game/OnAccept';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -21,31 +22,29 @@ function App() {
   const[fetchuser,setfetchuser] = useState(0);
   const [showRequest, SetShow] = useState(false);
   const [gameRequestSender, SetSender] = useState(null);
+
+
+
   useEffect(()=>{
     socket?.on('updated', ()=> {
-    
+      console.log('nice herre')
       setfetchuser((prevIsBool) => prevIsBool + 1)});
   }, [socket])
 
   useEffect(()=>{
     socket?.on('invitegame', (user)=> {
-      console.log()
       SetSender(user);
-      SetShow(true)});
+      if (window.location.pathname != '/practice' && window.location.pathname != '/online' && window.location.pathname != '/onlineGame')
+        SetShow(true)
+      });
       setTimeout(() => {
         SetShow(false);
       }, 3000);
   }, [socket])
-
-  socket?.on('acceptGame', (recieverName) => {
-    console.log("app acceptGame");
-
-  })
   
   useEffect(() => {
     const fetchData = async () => {
       try {
-   
         const resp = await axios.get(`${import.meta.env.VITE_url_back}/api/auth/user`, { withCredentials: true });
         setUser(resp.data);
         
@@ -56,79 +55,94 @@ function App() {
     fetchData();
   }, [fetchuser]);
 
-
-
-
-
   useEffect(() => {
     const handleError = (mssg) => {
-      console.log(mssg);
+      
       setErrorMessage(`An error occurred: ${mssg.type}`);
       setTimeout(() => {
         setErrorMessage('');
       }, 1000);
     };
     
-
     socket?.on('error', handleError);
 
     return () => {
       socket?.off('error');
     };
   }, [socket]);
+  
   const canceling = () => {
     SetShow(false);
   }
 
+  const [isSender, setIsSender] = useState(false);
+  const [recieverName, setReacieverName] = useState("");
+    useEffect(()=>{
+      socket?.on('acceptGame', (recieverName) => {
+      console.log("acceptGame");
+      setReacieverName(recieverName);
+      setIsSender(true);
+      SetgoGame(true);
+      console.log("isSender : ", isSender);
+    })
+  } ,[socket])
 
-
-const [goGame, SetgoGame] = useState(false);
-return (
-  <Router>
-      {
-        showRequest && <GameRequest SetShow={SetShow} user={user} onCancel={canceling}/>
-      }
-      {
-        errorMessage && (
-        <div className='error-container'>
-          <div className="error-popup">{errorMessage}</div>
-        </div>
-      )
-      }
-      <Routes>
+  const [goGame, SetgoGame] = useState(false);
+  return (
+    <Router>
         {
-          error.length > 0 ?
-          (
-            error === '2FA' 
-            ? ( <>
-             <Route path="*" element={<Navigate to="/2fa" />} />  
-              <Route path="/2fa" element={<TwoFa user={user} setError={setError}/>} />
-            </>)
-            : ( <>
-              <Route path="*" element={<Navigate to="/" />} /> 
-             <Route path="/" element={<Login user={user}/>} />
-            </>)
-          )
-          :
-          (
-            <>
-              <Route path="/2fa" element={<TwoFa user={user} setError={setError}/>} />
-              <Route path="/" element={<Login user={user} />} />
-              <Route path="/Home" element={<Punk user={user} SetgoGame={SetgoGame}/>} />
-              <Route path="/practice" element={<FirstPage infos={[]} mode='practice' goGame={goGame}/>} />
-              <Route path="/online" element={<OnlineMatching goGame={goGame}/>} />
-              <Route path="/invite" element={<Invite inviter={gameRequestSender}/>} /> 
-
-              <Route path="/Chat" element={<Chat user={user}/>} />
-              {user && <Route path="/Changeinfo" element={<ChangeProfile user={user} />} />}
-              <Route path="/profile/:userId" element={<UserProfile />} />
-            </>
-          )
-
+          (showRequest) && gameRequestSender != null &&  <GameRequest SetShow={SetShow} 
+            gameRequestSender={gameRequestSender}  
+            onCancel={canceling}
+            SetgoGame={SetgoGame}
+            setIsSender={setIsSender}/>
         }
-      </Routes>
-    </Router>
-);
+        {
+          isSender && <OnAccept setIsSender={setIsSender}/>
+        }
+        {
+          errorMessage && (
+          <div className='error-container'>
+            <div className="error-popup">{errorMessage}</div>
+          </div>
+        )
+        }
+        <Routes>
+          {
+            error.length > 0 ?
+            (
+              error === '2FA' 
+              ? ( <>
+               <Route path="*" element={<Navigate to="/2fa" />} />  
+                <Route path="/2fa" element={<TwoFa user={user} setError={setError}/>} />
+              </>)
+              : ( <>
+                <Route path="*" element={<Navigate to="/" />} /> 
+               <Route path="/" element={<Login user={user}/>} />
+              </>)
+            )
+            :
+            (
+              <>
+                <Route path="/2fa" element={<TwoFa user={user} setError={setError}/>} />
+                <Route path="/" element={<Login user={user} />} />
+                <Route path="/Home" element={<Punk SetgoGame={SetgoGame} user={user}/>} />
+                
+                <Route path="/practice" element={<FirstPage infos={[]} mode='practice' goGame={goGame}/>} />
+                <Route path="/online" element={<OnlineMatching goGame={goGame}/>} />
+                <Route path="/onlineGame" element={<Invite  inviter={gameRequestSender} isSender={isSender} recieverName={recieverName} goGame={goGame} setIsSender={setIsSender} />} /> 
+                
+                <Route path="/Chat" element={<Chat user={user}/>} />
+                {user && <Route path="/Changeinfo" element={<ChangeProfile user={user} />} />}
+                <Route path="/profile/:userId" element={<UserProfile />} />
+              </>
+            )
+
+
+          }
+        </Routes>
+      </Router>
+  );
 }
 
 export default App;

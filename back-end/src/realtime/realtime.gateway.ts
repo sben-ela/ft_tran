@@ -91,12 +91,6 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     const user = await this.authService.findUser(client.data.user.id);
     this.authService.updatenotification(payload.type, user, payload.senderid);
   }
-  @SubscribeMessage('acceptGame')
-  async acceptGame(client: Socket,id:string)
-  {
-    this.websocketService.emitgameacccepttouser(id,client.data.user.login);
-    console.log("gateway acceptGame");
-  }
   @SubscribeMessage('notifroom')
   async handlenotifroom(client: Socket, roomname: string) {
     const user = await this.authService.findUser(client.data.user.id);
@@ -108,16 +102,26 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
 
     const user = await this.authService.findUser(client.data.user.id);
     const toplaywith = await this.authService.findUser(payload.id);
-    if(toplaywith.status !== "ingame")
-      this.websocketService.emitToUser(payload.id.toString(), "invitegame");
-    else
+    if(toplaywith.status == "online")
+      this.websocketService.emitgameToUser(payload.id.toString(), user);
+    else if(toplaywith.status == "ingame")
       this.websocketService.emiterrorToUser(client.data.user.id, `${toplaywith.login} is already in game`);
-  }
+    else
+      this.websocketService.emiterrorToUser(client.data.user.id, `${toplaywith.login} is offline`);
 
+  }
   @SubscribeMessage('newroom')
   async brodcastroom(client: Socket) {
     this.server.to("brodcast").emit('brodcast');
   }
+
+  @SubscribeMessage('acceptGame')
+  async acceptGame(client: Socket,id:string)
+  {
+    this.websocketService.emitgameacccepttouser(id,client.data.user.login);
+    console.log("gateway acceptGame");
+  }
+  
   @SubscribeMessage('chatroomselected')
   handleJoinchatRoom(client: Socket, roomname: string): void {
     client.join(roomname);
@@ -195,6 +199,12 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
       this.websocketService.emitToUser(payload.id.toString(), "newmember");
     }
 
+  }
+  @SubscribeMessage("changeinfodone")
+  async changeinfodone(client: Socket)
+  {
+      const user11 = await this.authService.findUser(client.data.user.id);
+      await this.authService.updateUser(user11.id);
   }
   @SubscribeMessage('setadmin')
   async setadmin(client: Socket, payload: { id: number, name: string }) {
