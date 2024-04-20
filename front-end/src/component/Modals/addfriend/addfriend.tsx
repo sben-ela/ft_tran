@@ -1,9 +1,22 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState , KeyboardEvent } from 'react'
 import {motion, AnimatePresence} from 'framer-motion'
 
 import "./addfriend.css"
 import { useSocket } from '../../Socket';
-const FriendHelper = ( { image, name , FriendId, onFriendClick} ) => {
+interface Friend {
+    avatar: string;
+    login: string;
+    id: string;
+  }
+  
+  interface FriendHelperProps {
+    image: string;
+    name: string;
+
+    onFriendClick: (login: string) => void;
+  }
+
+const FriendHelper = ( { image, name ,  onFriendClick} : FriendHelperProps ) => {
   
     return (
       <div className='friend-helper' onClick={() => onFriendClick(name)}>
@@ -13,9 +26,17 @@ const FriendHelper = ( { image, name , FriendId, onFriendClick} ) => {
         <div className='friend-name-helper'>{name}</div>
       </div>
     );
-  }
+}
 
-function AddFriendModal({ show, friendName, setFriendName, onSubmit, onCancel }) {
+interface AddFriendModalProps {
+    show: boolean;
+    friendName: string;
+    setFriendName: React.Dispatch<React.SetStateAction<string>>;
+    onSubmit: (e: React.FormEvent) => Promise<void>;
+    onCancel: () => void;
+}
+
+function AddFriendModal({ show, friendName, setFriendName, onSubmit, onCancel }:AddFriendModalProps) {
     if (!show) {
       return null;
     }
@@ -36,11 +57,11 @@ function AddFriendModal({ show, friendName, setFriendName, onSubmit, onCancel })
         }
     }
     const socket = useSocket()
-    const [help, Sethelp] = useState(null);
+    const [help, setHelp] = useState<Friend[] | null>(null);
 
     useEffect(() => {
         socket?.on("autocomplete", (payload) => {
-            Sethelp(payload.users);
+            setHelp(payload.users);
             
         });
 
@@ -48,15 +69,26 @@ function AddFriendModal({ show, friendName, setFriendName, onSubmit, onCancel })
             socket?.off("autocomplete");
         };
     },[socket])
-    const handleInputChange = (e) => {
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFriendName(e.target.value);
         socket?.emit('autocomplete', e.target.value)
         
     };
 
-const friendClick = (login : string)=>{
-    setFriendName(login);
-}
+    const friendClick = (login : string)=>{
+        setFriendName(login);
+    }
+
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        console.log('Key pressed:', e.key);
+        if (e.key === 'Enter') {
+            console.log('Enter key pressed');
+            e.preventDefault(); 
+            onSubmit(e);
+        }
+    };
 
     return (
         <AnimatePresence>
@@ -74,12 +106,14 @@ const friendClick = (login : string)=>{
                     value={friendName}
                     onChange={handleInputChange}
                     placeholder="Enter friend's name"
+                    onKeyDown={handleKeyDown}
                 />
 
                 <div className='autoComplete'>
                     {help ? (
                     help.map((friend, index) => (
-                        <FriendHelper key={index} image={friend.avatar} name={friend.login} FriendId={friend.id} onFriendClick={friendClick}/> ))
+                    
+                    <FriendHelper key={index} image={friend.avatar} name={friend.login}  onFriendClick={friendClick}/> ))
                     ) : ( <div className='suggestion'><p> No Suggestion </p></div>)}
                 </div>
 
@@ -95,7 +129,7 @@ const friendClick = (login : string)=>{
                             stroke-width="2"
                             stroke-linecap="round"
                             stroke-linejoin="round"
-                            class="ai ai-Check"
+                            className="ai ai-Check"
                         >
                             <path d="M4 12l6 6L20 6" />
                         </svg>
@@ -112,7 +146,7 @@ const friendClick = (login : string)=>{
                             stroke-width="2"
                             stroke-linecap="round"
                             stroke-linejoin="round"
-                            class="ai ai-Cross"
+                            className="ai ai-Cross"
                         >
                             <path d="M20 20L4 4m16 0L4 20" />
                         </svg>
@@ -123,5 +157,6 @@ const friendClick = (login : string)=>{
       </AnimatePresence>
 
     );
-  }
-  export default AddFriendModal
+}
+
+export default AddFriendModal

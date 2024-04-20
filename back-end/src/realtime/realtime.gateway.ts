@@ -32,7 +32,12 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
   async handleConnection(client: Socket) {
     this.websocketService.addUserToMap(client.data.user.id, client);
-
+    const user = await this.authService.findUser(client.data.user.id);
+    const friends = await this.friendservice.findAllacceotedfriends(user);
+    for(let i = 0; i < friends.length;i++)
+    {
+      this.websocketService.emitToUser(friends[i].id.toString(),"friendRequestReceived");
+    }
     client.join("brodcast");
 
 
@@ -40,6 +45,12 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   async handleDisconnect(client: Socket) {
     this.websocketService.removeUserFromMap(client.data.user.id);
     await this.authService.changestatus(client.data.user.id, "offline");
+    const user = await this.authService.findUser(client.data.user.id);
+    const friends = await this.friendservice.findAllacceotedfriends(user);
+    for(let i = 0; i < friends.length;i++)
+      {
+        this.websocketService.emitToUser(friends[i].id.toString(),"friendRequestReceived");
+      }
 
     client.leave("brodcast");
 
@@ -121,10 +132,25 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     this.websocketService.emitgameacccepttouser(id,client.data.user.login);
     console.log("gateway acceptGame");
   }
-  
+
   @SubscribeMessage('chatroomselected')
   handleJoinchatRoom(client: Socket, roomname: string): void {
     client.join(roomname);
+
+
+  }
+  @SubscribeMessage('autocompleteroom')
+  async autocompleteroom(client: Socket,payload : { str: string, roomname:string}) {
+   let userProfiles
+    if(payload.str !== ''){
+     
+      const allmembers = await this.roomService.findroommembersautocom(payload.roomname,payload.str);
+      userProfiles = allmembers.members.map(user => ({
+        login: user.login,     
+        avatar: user.avatar   
+    }));
+  }
+  this.websocketService.emitusersToUserroom(client.data.user.id,userProfiles);
 
 
   }

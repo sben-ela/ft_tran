@@ -75,6 +75,7 @@
     grid-template-rows: 1fr 1fr;
     position: relative;
     margin-left: 1vmin;
+    width: 10vw;
 }
 
 .text .friend-nm {
@@ -125,14 +126,15 @@
     display: flex;
     align-items: flex-end; /* Keeps items aligned at the bottom */
     margin: 0.5rem 0; /* Reduces the vertical space between message rows */
-    width: fit-content;
+    /* width: fit-content; */
     height: fit-content;
     max-width: 60%;
     
 }
 
 .message {
-    padding: 0.5rem 1rem;
+    box-sizing: border-box;
+    padding: 0.5vmin 2vmin;
     background: rgba(29, 242, 182, 1);
     border-radius: 1.125rem 1.125rem 1.125rem 0;
     min-height: 2vmin;

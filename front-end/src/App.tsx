@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Login, TwoFa } from './component/Login/Login';
 import './App.css';
 import Punk from './component/PunkProfile/Punk';
@@ -8,11 +8,13 @@ import axios from 'axios';
 import { useSocket } from './component/Socket';
 import UserProfile from './component/UserProfile/UserProfile';
 import ChangeProfile from './component/ChangeInfos/ChangeInfos';
-import GameRequest from './component/Modals/GameRequest/gamereq';
-import FirstPage from './component/game/FirstPage';
 import OnlineMatching from './component/game/OnlineMatching';
 import Invite from './component/game/Invite';
 import OnAccept from './component/game/OnAccept';
+import GameRequest from './component/game/GameRequest/gamereq';
+import Practice from './component/game/Practice';
+import Control from './component/game/Control';
+
 
 function App() {
   const [user, setUser] = useState(null);
@@ -75,6 +77,8 @@ function App() {
     SetShow(false);
   }
 
+ 
+
   const [isSender, setIsSender] = useState(false);
   const [recieverName, setReacieverName] = useState("");
     useEffect(()=>{
@@ -126,15 +130,16 @@ function App() {
               <>
                 <Route path="/2fa" element={<TwoFa user={user} setError={setError}/>} />
                 <Route path="/" element={<Login user={user} />} />
-                <Route path="/Home" element={<Punk SetgoGame={SetgoGame} user={user}/>} />
+                <Route path="/Home" element={<Punk SetgoGame={SetgoGame} user={user} setUser={setUser}/>} />
                 
-                <Route path="/practice" element={<FirstPage infos={[]} mode='practice' goGame={goGame}/>} />
+                <Route path="/practice" element={<Practice infos={[]} mode='practice' goGame={goGame}/>} />
                 <Route path="/online" element={<OnlineMatching goGame={goGame}/>} />
                 <Route path="/onlineGame" element={<Invite  inviter={gameRequestSender} isSender={isSender} recieverName={recieverName} goGame={goGame} setIsSender={setIsSender} />} /> 
+                <Route path="/control" element={<Control></Control>} />
                 
-                <Route path="/Chat" element={<Chat user={user}/>} />
+                <Route path="/Chat" element={<Chat user={user} setUser={setUser}/>} />
                 {user && <Route path="/Changeinfo" element={<ChangeProfile user={user} />} />}
-                <Route path="/profile/:userId" element={<UserProfile />} />
+                <Route path="/profile/:userId" element={<UserProfile setUser={setUser}/>} />
               </>
             )
 
