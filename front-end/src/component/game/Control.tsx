@@ -1,7 +1,9 @@
 
 import './style/control.css'
 
+
 export default function Control() {
+
 
 
     return(

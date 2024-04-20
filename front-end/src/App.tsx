@@ -135,8 +135,7 @@ function App() {
                 <Route path="/practice" element={<Practice infos={[]} mode='practice' goGame={goGame}/>} />
                 <Route path="/online" element={<OnlineMatching goGame={goGame}/>} />
                 <Route path="/onlineGame" element={<Invite  inviter={gameRequestSender} isSender={isSender} recieverName={recieverName} goGame={goGame} setIsSender={setIsSender} />} /> 
-                <Route path="/control" element={<Control></Control>} />
-                
+                            
                 <Route path="/Chat" element={<Chat user={user} setUser={setUser}/>} />
                 {user && <Route path="/Changeinfo" element={<ChangeProfile user={user} />} />}
                 <Route path="/profile/:userId" element={<UserProfile setUser={setUser}/>} />
