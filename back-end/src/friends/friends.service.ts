@@ -15,6 +15,17 @@ export class FriendsService {
     constructor(@InjectRepository(Friends) private readonly friendrepository : Repository<Friends>,@InjectRepository(Blocked) private readonly blockedrepository : Repository<Blocked>,private readonly chatservice:ChatService
     
     ){}
+    async findallthatblockedme(user:User)
+    {
+      const isblocked  = await this.blockedrepository.find({
+        where: 
+          { user2: user },relations:["user1"]
+      });
+      const users = isblocked.map(block => {
+        return block.user1;
+      });
+      return users;
+    } 
     async confirmfriendship(details:FriendsDtails){
         if (details.user1.id === details.user2.id) {
           // Users are the same, handle the error or return an appropriate response
@@ -69,7 +80,6 @@ export class FriendsService {
       });
       const users = await Promise.all(friendships.map(async (friendship) => {
         const chatid = await this.chatservice.findChatByFriendshipId({friends:friendship,rooms:null});
-        
         const lastmessage = await this.chatservice.findMessagesByChatId(chatid.id);
         const lastm =lastmessage[lastmessage.length - 1] ? lastmessage[lastmessage.length - 1].content : null;
         if(friendship.user1.id == user.id)

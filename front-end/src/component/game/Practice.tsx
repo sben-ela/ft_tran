@@ -50,9 +50,6 @@ function Practice({infos , mode, goGame} : props){
 			const exit = document.createElement('button');
 			const stopControl = document.createElement('button');
 			const fixCamera = document.createElement('button');
-			const starting = document.createElement('img');
-			starting.src =  "src/component/game/assets/starting1.gif";
-			starting.id = 'starting';
 			fixCamera.id = 'fix-camera';
 			fixCamera.innerText = "Fix Camera";
 			stopControl.id = 'stop-control';
@@ -98,7 +95,6 @@ function Practice({infos , mode, goGame} : props){
 				root?.removeChild(exit);
 				root?.removeChild(stopControl);
 				root?.removeChild(fixCamera);
-
 
 				scene.children.forEach(child => {
 					scene.remove(child);
@@ -149,7 +145,6 @@ function Practice({infos , mode, goGame} : props){
 				root.appendChild(exit);
 				root.appendChild(stopControl);
 				root.appendChild(fixCamera);
-				root.appendChild(starting);
 				
 			} else {
 				console.log("Element with ID 'root' not found.");
@@ -210,7 +205,7 @@ function Practice({infos , mode, goGame} : props){
 					stadium.position.x = -1760;
 					stadium.position.z = 2435;
 					stadium.rotation.y -= Math.PI/2;
-					root?.removeChild(starting);
+					scene.fog = null;
 					scene.add(stadium);
 				})
 				
@@ -418,9 +413,9 @@ function Practice({infos , mode, goGame} : props){
 						requestAnimationFrame( animate );
 						renderer.render( scene, camera );
 
-						const delta = clock.getDelta();
+						// const delta = clock.getDelta();
 
-						if ( mixer ) mixer.update( delta );
+						// if ( mixer ) mixer.update( delta );
 
 
 				}
@@ -456,6 +451,7 @@ function Practice({infos , mode, goGame} : props){
 			}
 			function base() {
 				scene.background = new THREE.Color( 0x000000 );
+				scene.fog = new THREE.Fog( 0x000000, 50, 1000 );
 				const hemiLight = new THREE.HemisphereLight( 0x777777, 0x777777, 5 );
 				hemiLight.position.set( 0, 500, 0 );
 				scene.add( hemiLight );
@@ -478,24 +474,24 @@ function Practice({infos , mode, goGame} : props){
 				grid.material.transparent = true;
 				scene.add( grid );
 
-				const fbxloader = new FBXLoader();
-				fbxloader.load( 'src/component/game/assets/people_freePack_webGl_ani.fbx', function ( object  : any) {
+				// const fbxloader = new FBXLoader();
+				// fbxloader.load( 'src/component/game/assets/people_freePack_webGl_ani.fbx', function ( object  : any) {
           
-				mixer = new THREE.AnimationMixer( object );
+				// mixer = new THREE.AnimationMixer( object );
 		
-				const action = mixer.clipAction( object.animations[ 0 ] );
-				action.play();
-				object.traverse( function ( child : any ) {
-				if ( child.isMesh ) {
-					child.castShadow = true;
-					child.receiveShadow = true;
-				}} );
-				object.position.z = 100;
-				object.position.x = 400 * (index == 0 ? -1 : 1);
-				object.scale.set(0.5, 0.5, 0.5);
-				object.rotation.y = Math.PI / 2 * (index == 0 ? 1 : -1);
-				scene.add( object );
-				});
+				// const action = mixer.clipAction( object.animations[ 0 ] );
+				// action.play();
+				// object.traverse( function ( child : any ) {
+				// if ( child.isMesh ) {
+				// 	child.castShadow = true;
+				// 	child.receiveShadow = true;
+				// }} );
+				// object.position.z = 100;
+				// object.position.x = 400 * (index == 0 ? -1 : 1);
+				// object.scale.set(0.5, 0.5, 0.5);
+				// object.rotation.y = Math.PI / 2 * (index == 0 ? 1 : -1);
+				// // scene.add( object );
+				// });
 			}
 			window.addEventListener( 'resize', onWindowResize );
 			function onWindowResize() {

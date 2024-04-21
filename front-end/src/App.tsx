@@ -13,7 +13,19 @@ import Invite from './component/game/Invite';
 import OnAccept from './component/game/OnAccept';
 import GameRequest from './component/game/GameRequest/gamereq';
 import Practice from './component/game/Practice';
-import Control from './component/game/Control';
+
+
+
+const NotFound = () => {
+    return (
+      <div className="not-found-container">
+          
+            <h1 className="not-found-title">404 - Page Not Found</h1>
+          
+      </div>
+    );
+};
+
 
 
 function App() {
@@ -56,6 +68,9 @@ function App() {
     };
     fetchData();
   }, [fetchuser]);
+
+
+    
 
   useEffect(() => {
     const handleError = (mssg) => {
@@ -135,14 +150,13 @@ function App() {
                 <Route path="/practice" element={<Practice infos={[]} mode='practice' goGame={goGame}/>} />
                 <Route path="/online" element={<OnlineMatching goGame={goGame}/>} />
                 <Route path="/onlineGame" element={<Invite  inviter={gameRequestSender} isSender={isSender} recieverName={recieverName} goGame={goGame} setIsSender={setIsSender} />} /> 
-                            
+                
                 <Route path="/Chat" element={<Chat user={user} setUser={setUser}/>} />
                 {user && <Route path="/Changeinfo" element={<ChangeProfile user={user} />} />}
                 <Route path="/profile/:userId" element={<UserProfile setUser={setUser}/>} />
+                <Route path="*" element={<NotFound />} />
               </>
             )
-
-
           }
         </Routes>
       </Router>

@@ -15,6 +15,7 @@ export class GameService {
 
     async savegamedata(game:Game)
     {
+      
         await this.GameRepository.save(game);
         //acheivment
 

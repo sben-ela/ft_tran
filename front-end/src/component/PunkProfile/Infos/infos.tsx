@@ -4,6 +4,8 @@ import "./infos.css";
 import pl from "../../../assets/logo1.svg"
 
 import EditProfile from "../../Modals/editprofile/editprofile";
+import { useNavigate } from "react-router-dom";
+import Popup from "../../Modals/popup/Popup";
 interface User {
   avatar : string
   login : string
@@ -23,15 +25,21 @@ const Infos = ({user} : UserProps) => {
   const handleCancel = () => {
     Setedit(false);
   };
-  
+  const navigate = useNavigate()
+
+  const goToprofile = () => {
+    user && navigate(`/profile/${user.id}`, { state: { userData: user } });
+  };
   return (
     <div className="profile-container">
         <div className="player-infos">
           {user ? (
             <>
+                <Popup tooltip="visite profile">
               <div className="ImgProfile">
-                <img src={user.avatar} alt="Profile" />
+                  <img src={user.avatar} alt="Profile" onClick={goToprofile} />
               </div>
+                </Popup>
               <div className="name">
                 <p>{user.login}</p>
               </div>

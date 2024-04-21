@@ -78,8 +78,18 @@ export class AuthController
     async updateuser(@Req() req:Request,@Res() res:Response,  @UploadedFile() file: Express.Multer.File,@Body() body: any)
     {
         const user = req.user as User;
-        if(user.login != body.name )
+        if(user.login != body.name)
         {
+            if(body.name == "")
+            {
+                this.websocketService.emiterrorToUser(user.id.toString(),`empty name`)
+                return ;
+            }
+            if(body.name.length > 8 )
+            {
+                this.websocketService.emiterrorToUser(user.id.toString(),`name is too long`)
+                return ;
+            }
             const isexist = await this.authService.findUserbylogin(body.name);
             if(isexist)
             {
@@ -108,6 +118,14 @@ export class AuthController
         }
         res.sendFile(file);
     }
+    @Get("numofnotif")
+    @UseGuards(jwtguard)
+    async numofnotif(@Req() req:Request,@Res() res:Response)
+    {
+        const user = req.user as User;
+        const n = await this.authService.findnumberofnotif(user.id);
+        res.send(JSON.stringify(n));
+    }
     @Get('user')
     async getUser(@Req() req:Request,@Res() res:Response) {
         try{
@@ -127,7 +145,7 @@ export class AuthController
             {
                 throw new UnauthorizedException("2FA");
             }
-            const numberofnotif = await this.authService.findnumberofnotif(user.id);
+            
             res.send(user)
         } 
         catch(e)

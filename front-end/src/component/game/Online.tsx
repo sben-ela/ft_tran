@@ -108,8 +108,8 @@ function Online({infos , mode, socket} : props) {
 			renderer.forceContextLoss();
 			renderer.dispose();
 			controls.dispose();
-			socket.emit('exit');
 			socket.emit('setScore', infos[0]);
+			socket.emit('exit');
 		}
 		container.style.pointerEvents = 'none';
 		if (mode == 'online'){
@@ -142,6 +142,7 @@ function Online({infos , mode, socket} : props) {
 			container.appendChild(player2Info);
 
 		}
+		let remove = false;
 		const endGame = document.createElement('div');
 		const gameOver = document.createElement('div');
 		const result = document.createElement('h3');
@@ -177,6 +178,7 @@ function Online({infos , mode, socket} : props) {
 		gameOver.id = 'game-over';
 		socket?.on('endGame', (res : string) => {
 			result.innerText = res;
+			remove = true;
 			root?.appendChild(endGame);
 		})
 		socket.on('data', (message : any)=> {
@@ -186,12 +188,33 @@ function Online({infos , mode, socket} : props) {
 				ball.object.position.z = -message[0].z;
 			}
 		});
+		// window.addEventListener('popstate', function(event) {
+		// 	root?.removeChild(renderer.domElement);
+		// 	root?.removeChild(exit);
+		// 	root?.removeChild(stopControl);
+		// 	root?.removeChild(fixCamera);
 
+		// 	scene.children.forEach(child => {
+		// 		scene.remove(child);
+		// 		console.log("DELETE");
+		// 	});
+		// 	renderer.dispose();
+		// 	stopAnimate = true;
+
+		// 	renderer.setAnimationLoop(null);
+		// 	renderer.domElement.remove(); 
+		// 	renderer.forceContextLoss();
+		// 	renderer.dispose();
+		// 	controls.dispose();
+		// });
 		window.addEventListener('popstate', (event) =>{
 			root?.removeChild(renderer.domElement);
 			root?.removeChild(container);
 			root?.removeChild(exit);
-			root?.removeChild(endGame);
+			if (remove){
+				root?.removeChild(endGame);
+			}
+
 			root?.removeChild(stopControl);
 			root?.removeChild(fixCamera);
 			// root?.removeChild(starting);
@@ -207,8 +230,8 @@ function Online({infos , mode, socket} : props) {
 			renderer.forceContextLoss();
 			renderer.dispose();
 			controls.dispose();
-			socket.emit('exit');
 			socket.emit('setScore', infos[0]);
+			socket.emit('exit');
 
 		});
 		camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 5000 );
@@ -331,36 +354,37 @@ function Online({infos , mode, socket} : props) {
 							socket.emit('speed', [infos[0], event.clientY - initClientY]);
 						}
 						else{
-							if (event.clientY - initClientY < -150){
-								p1Speed =  -2.8;
-								p1deltaT = 1 / 45;
-								player1fp = (boundingBox.max.z - boundingBox.min.z) / 3.5;
-							}
-							else if (event.clientY - initClientY < -100){
+							// if (event.clientY - initClientY < -150){
+							// 	p1Speed =  -2.5;
+							// 	p1deltaT = 1 / 45;
+							// 	player1fp = (boundingBox.max.z - boundingBox.min.z) / 4;
+							// }
+							// else if (event.clientY - initClientY < -100){
+							// 	p1Speed =  -2.5;
+							// 	p1deltaT = 1 / 45;
+							// 	player1fp = (boundingBox.max.z - boundingBox.min.z) / 4;
+							// }
+							// else if (event.clientY - initClientY < -25){
+							// 	p1Speed =  -2.5;
+							// 	p1deltaT = 1 / 45;
+							// 	player1fp = (boundingBox.max.z - boundingBox.min.z) / 4;
+							// }
+							// else if (event.clientY - initClientY < -2){
+							// 	p1Speed =  -2.5;
+							// 	p1deltaT = 1 / 45;
+							// 	player1fp = (boundingBox.max.z - boundingBox.min.z) / 4;
+							// }
+							// else {
 								p1Speed =  -2.5;
-								p1deltaT = 1 / 45;
-								player1fp = (boundingBox.max.z - boundingBox.min.z) / 4;
-							}
-							else if (event.clientY - initClientY < -25){
-								p1Speed =  -2.5;
-								p1deltaT = 1 / 45;
-								player1fp = (boundingBox.max.z - boundingBox.min.z) / 4;
-							}
-							else if (event.clientY - initClientY < -2){
-								p1Speed =  -2;
-								p1deltaT = 1 / 45;
-								player1fp = (boundingBox.max.z - boundingBox.min.z) / 4;
-							}
-							else {
-								p1Speed =  -1.8;
-								p1deltaT = 1 / 46;
-								player1fp = (boundingBox.max.z - boundingBox.min.z) / 4;
-							}
+								p1deltaT = 1 / 40;
+								player1fp = (boundingBox.max.z - boundingBox.min.z) / 5;
+							// }
 						}
 						initclientX = event.clientX ;
 						initClientY = event.clientY;
 					}
 			}
+
 			function	reset(){
 				ball.object.position.y = 50;
 				if (ball.object.position.x > maxX)
@@ -513,17 +537,17 @@ function Online({infos , mode, socket} : props) {
 								lastFallingZ = ball.object.position.z;
 							up = true;
 							if (stepZ > 0)
-								middle = ball.object.position.z + falligPoint // *1.2;
+								middle = ball.object.position.z + falligPoint *1.5;
 							else
-								middle = ball.object.position.z - falligPoint // *1.2;
-							deltaT = 1/50; 
+								middle = ball.object.position.z - falligPoint *1.5;
+							// deltaT = 1/50; 
 						}
 						
 					}
 					else{
 						if (ball.object.position.y < 45)
 							ball.moveY = 0.2;
-						else if (ball.object.position.y > 55) 
+						else if (ball.object.position.y > 57) 
 							ball.moveY = -0.2;
 						ball.object.position.y += ball.moveY;
 					}
