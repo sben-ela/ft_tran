@@ -53,9 +53,9 @@ export class User {
     notif: Notif[];
     @OneToMany(() => Notif, (notifsender) => notifsender.sender)
     notifsender: Notif[];
-    @OneToMany(() => Game, (game) => game.winner, { onDelete: 'CASCADE' })
+    @OneToOne(() => Game, (game) => game.winner, { onDelete: 'CASCADE' })
     winner: Game;
-    @OneToMany(() => Game, (game) => game.loser, { onDelete: 'CASCADE' })
+    @OneToOne(() => Game, (game) => game.loser, { onDelete: 'CASCADE' })
     loser: Game;
     
 }

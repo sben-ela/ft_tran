@@ -78,20 +78,14 @@ export class AuthController
     async updateuser(@Req() req:Request,@Res() res:Response,  @UploadedFile() file: Express.Multer.File,@Body() body: any)
     {
         const user = req.user as User;
-        if(user.login != body.name)
+        if(user.login != body.name )
         {
-            if(body.name == "")
-            {
-                this.websocketService.emiterrorToUser(user.id.toString(),`empty name`)
-                return ;
-            }
-            if(body.name.length > 8 )
-            {
-                this.websocketService.emiterrorToUser(user.id.toString(),`name is too long`)
-                return ;
-            }
+            if (body.name == "") { this.websocketService.emiterrorToUser(user.id.toString(),`empty name`)
+                 return ; } 
+            if (body.name.length > 8 ) { this.websocketService.emiterrorToUser(user.id.toString(),`name is too long`) 
+                return ; }
             const isexist = await this.authService.findUserbylogin(body.name);
-            if(isexist)
+            if (isexist)
             {
                 this.websocketService.emiterrorToUser(user.id.toString(),`${body.name} name is already exist`)
                 return ;
@@ -99,7 +93,7 @@ export class AuthController
             else
                 user.login = body.name;
         }
-        if(user.avatar != body.avatar)
+        if (user.avatar != body.avatar)
         {
             user.avatar = `${process.env.url_back}/api/auth/${file.path}`;
         }

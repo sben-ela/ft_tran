@@ -15,7 +15,7 @@ interface User {
 }
 
 interface ChangeProfileprops {
-    user: User;
+    user: User ;
 }
 
 function ChangeProfile({ user } : ChangeProfileprops)
@@ -37,13 +37,13 @@ function ChangeProfile({ user } : ChangeProfileprops)
         const file = e.target.files?.[0];
 
         if (file) {
-        setImage(file);
-        const reader = new FileReader();
-        
-        reader.onloadend = () => {
-            setImagePreviewUrl(reader.result as string);
-        };
-        reader.readAsDataURL(file);
+            setImage(file);
+            const reader = new FileReader();
+            
+            reader.onloadend = () => {
+                setImagePreviewUrl(reader.result as string);
+            };
+            reader.readAsDataURL(file);
         }
     };
 
@@ -113,7 +113,7 @@ function ChangeProfile({ user } : ChangeProfileprops)
         
                         <p className='chooseimg'>choose an avatar</p>
                         <div className='avatarChose'>
-                            <input className='avatimg' onKeyDown={handleKeyDown} type="file" onChange={handleImageChange} /> 
+                            <input className='avatimg' onKeyDown={handleKeyDown} type="file"  onChange={handleImageChange} /> 
                             <img className='preview'  src={imagePreviewUrl} />
                         </div>
                    

@@ -19,9 +19,9 @@ import Practice from './component/game/Practice';
 const NotFound = () => {
     return (
       <div className="not-found-container">
-          
+          <div className='notfound'>
             <h1 className="not-found-title">404 - Page Not Found</h1>
-          
+          </div>
       </div>
     );
 };
@@ -146,16 +146,17 @@ function App() {
                 <Route path="/2fa" element={<TwoFa user={user} setError={setError}/>} />
                 <Route path="/" element={<Login user={user} />} />
                 <Route path="/Home" element={<Punk SetgoGame={SetgoGame} user={user} setUser={setUser}/>} />
-                
+
                 <Route path="/practice" element={<Practice infos={[]} mode='practice' goGame={goGame}/>} />
                 <Route path="/online" element={<OnlineMatching goGame={goGame}/>} />
                 <Route path="/onlineGame" element={<Invite  inviter={gameRequestSender} isSender={isSender} recieverName={recieverName} goGame={goGame} setIsSender={setIsSender} />} /> 
-                
+
                 <Route path="/Chat" element={<Chat user={user} setUser={setUser}/>} />
                 {user && <Route path="/Changeinfo" element={<ChangeProfile user={user} />} />}
                 <Route path="/profile/:userId" element={<UserProfile setUser={setUser}/>} />
-                <Route path="*" element={<NotFound />} />
+                {user && <Route path="*" element={<NotFound />} />}
               </>
+
             )
           }
         </Routes>

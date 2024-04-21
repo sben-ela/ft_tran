@@ -49,7 +49,7 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     const friends = await this.friendservice.findAllacceotedfriends(user);
     for(let i = 0; i < friends.length;i++)
       {
-        this.websocketService.emitToUser(friends[i].id.toString(),"friendRequestReceived");
+        this.websocketService.emitToUser(friends[i]?.id?.toString(),"friendRequestReceived");
       }
 
     client.leave("brodcast");

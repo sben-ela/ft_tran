@@ -16,4 +16,5 @@ import { Acheivment } from 'src/typeorm/entities/acheivment';
   providers: [GameService],
   exports:[GameService],
 })
+
 export class GameModule {}

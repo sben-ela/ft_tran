@@ -39,59 +39,58 @@
 #player-info{
    background-color: transparent;
    height: 9vh;
-   left : 2vw;
-   width: 90%;
+   width: 98%;
 }
 
 #player1-info{
-    border: solid 2px rgb(65, 70, 6);
+    border: solid 5px rgb(23, 8, 105);
     border-radius: 10px;
-    width: 20vw;
+    width: 15vw;
     box-shadow: 5px 5px 50px rgb(27, 126, 109);
+    /* left : 2vw; */
+
 }
 
 #player2-info{
-    border: solid 2px rgb(65, 70, 6);
+    border: solid 5px rgb(23, 8, 105);
     border-radius: 10px;
-    width: 20vw;
+    width: 15vw;
     box-shadow: 5px 5px 50px rgb(27, 126, 109);
     position: absolute;
     top: 10%;
-    right: 2%;
+    right: 0px;
     height: inherit;
 }
 
 #player1-info a{ 
     position: absolute;
-    width: 20vw;
+    width: 10vw;
     left: 10%;
     padding-top: 1%;
     font-size: 2vw;
-    color:bisque;
+    color:rgb(231, 80, 10);
 
 }
 
 #player2-info a{
     position: absolute;
-    width: 20vw;
+    width: 10vw;
     left: 10%;
-    padding-top: 5%;
+    padding-top: 2vh;
     font-size: 2vw;
-    color:bisque;
-
-
+    color:rgb(231, 80, 10);
 }
 
 #player1-info img{
     border-radius: 8px;
     padding: 0;
     margin: 0;
-    width: 30%;
+    width: 7vw;
 }
 
 #player2-info img{
     border-radius: 8px;
-    width: 30%;
+    width: 7vw;
     padding: 0;
     margin: 0;
     position: absolute;
