@@ -56,16 +56,16 @@ volumes:
     driver_opts:
       type: 'none'
       o: 'bind'
-      device: '/home/sben-ela/Ft_transcendence/postgres_db'
+      device: '/home/sben-ela/ft_tran/postgres_db'
   back-end:
     driver: local
     driver_opts:
       type: 'none'
       o: 'bind'
-      device: '/home/sben-ela/Ft_transcendence/back-end'
+      device: '/home/sben-ela/ft_tran/back-end'
   front-end:
     driver: local
     driver_opts:
       type: 'none'
       o: 'bind'
-      device: '/home/sben-ela/Ft_transcendence/front-end'
+      device: '/home/sben-ela/ft_tran/front-end'

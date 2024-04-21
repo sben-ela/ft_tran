@@ -1,7 +1,6 @@
 import { SubscribeMessage, WebSocketGateway, MessageBody,WebSocketServer ,OnGatewayInit} from '@nestjs/websockets';
 import { Server , Socket} from 'socket.io';
 import { Room } from './Room';
-import { Ball } from './ball';
 import { socketmidd } from 'src/realtime/socketmiddlware';
 import { AuthService } from 'src/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
@@ -11,6 +10,12 @@ import { copyFileSync } from 'node:fs';
 import { WebsocketService } from 'src/realtime/Websocketservice';
 import { FriendsService } from 'src/friends/friends.service';
 
+
+interface Ball {
+  x : number;
+  y : number;
+  z : number;
+}
 
 let clients = [];
 const inGame = [];
@@ -43,24 +48,14 @@ export class GameGateway implements OnGatewayInit {
       client.join(client.data.user.login);
       inGame.push(client.data.user.login);
       await this.authService.changestatus(client.data.user.id,"ingame");
-  
-      // console.log("client 1 create : ", client.data.user.login);
-      // console.log("In game will  : ", inGame);
 
       client.emit('success');
     }
     else{
       client.emit('error');
-      // console.log(client.data.user.login," already in game");
     }
   }
-  @SubscribeMessage('starting')
-  starting(client : Socket, roomName : string){
-    this.rooms.get(roomName).starting++;
-    console.log("staring : ", this.rooms.get(roomName).starting);
-    if (this.rooms.get(roomName).starting > 1)
-      this.server.to(roomName)?.emit('starting');
-  }
+
   @SubscribeMessage('InviterJoining')
   async inviterJoining(client : Socket, roomName : any){
     roomName = roomName.userlog;
