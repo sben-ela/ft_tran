@@ -302,6 +302,7 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     const roomname = payload.name;
     const room = await this.roomService.findroom(roomname);
     const user = await this.roomService.muteuser(room, usermuted, user11);
+
     setTimeout(async () => {
       await this.roomService.unmuteuser(room, usermuted, user11);
       this.websocketService.emitToUser(payload.id.toString(), "newmember");

@@ -262,16 +262,20 @@ allmembers.forEach((mem) => {
         room: myroom, user: willingtomute,
       }
     })
-    if (muter.role == "admin" || muter.role == "owner") {
+    if (muter?.role == "admin" || muter?.role == "owner") {
       const specificuser = await this.roommmemberrepository.findOne({
         where: {
           room: myroom, user: muteduser,
         }
       })
-      if (specificuser.role != "owner" || muter.role == "owner")
-        specificuser.status = null;
-      this.roommmemberrepository.save(specificuser)
-    }
+      if(specificuser)
+      {
+        if (specificuser?.role != "owner" || muter?.role == "owner")
+          specificuser.status = null;
+        this.roommmemberrepository.save(specificuser)
+      }
+     
+    } 
 
     return;
   }
