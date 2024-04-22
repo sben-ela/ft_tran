@@ -14,6 +14,7 @@ interface ModalProps {
 
 interface User {
   isTwoFactorAuthenticationEnabled: boolean;
+  id : number
 }
 interface MenuBarProps {
   user: User | null;
@@ -237,17 +238,24 @@ const socket = useSocket()
   }
 
 
+  const goToprofile = () => {
+    user && navigate(`/profile/${user.id}`, { state: { userData: user } });
+  };
+
+
   return (
     <>
+    { user && 
       <div className="menuB">
         <div className="Menu-container">
             <div className="icon-logo">
-              <img src={logo} className="elem"/>
+                <Link to="/Home">
+                  <img src={logo} className="elem"/>
+                </Link>
             </div>
       
-              <div className="icon">
-                <Link to="/Home">
-
+              <div className="icon" onClick={goToprofile}>
+            
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="36"
@@ -263,7 +271,7 @@ const socket = useSocket()
                   <circle cx="12" cy="7" r="5" />
                   <path d="M17 14h.352a3 3 0 0 1 2.976 2.628l.391 3.124A2 2 0 0 1 18.734 22H5.266a2 2 0 0 1-1.985-2.248l.39-3.124A3 3 0 0 1 6.649 14H7" />
                 </svg>
-                </Link>
+         
               </div>
 
               <div className="icon ">
@@ -287,7 +295,7 @@ const socket = useSocket()
                 </Link>
               </div>
 
-            <div className="icon" onClick={()=>{handleModal}}>
+            <div className="icon" onClick={handleModal}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="36"
@@ -305,7 +313,7 @@ const socket = useSocket()
               </svg>
             </div>
 
-            <div className="icon" onClick={() => {handlogOut}}>
+            <div className="icon" onClick={handlogOut}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="36"
@@ -325,10 +333,10 @@ const socket = useSocket()
 
         </div>
       </div>
-
+    }
       {Settings && user && (
         <Modal
-          onClose={() => {handleModal}}
+          onClose={handleModal}
           isTwoFactorEnabled={user.isTwoFactorAuthenticationEnabled}
         ></Modal>
       )}

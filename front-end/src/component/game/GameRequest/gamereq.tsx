@@ -35,7 +35,6 @@ function GameRequest({SetShow ,gameRequestSender, onCancel, SetgoGame, setIsSend
                 setGameSocket(newsocket);
             }
             catch(e){
-                console.log(e);
             }
         }
         getSocket();
@@ -44,19 +43,16 @@ function GameRequest({SetShow ,gameRequestSender, onCancel, SetgoGame, setIsSend
     const navigate = useNavigate(); 
 
     const handleSubmit =()=>{
-        console.log("isInGame");
         gameSocket?.emit('isInGame', gameRequestSender.login);
     }
 
     gameSocket.on('NotInGame', ()=>{
-        console.log("NotInGame");
         SetgoGame(true);
         SetShow(false);
         setIsSender(false);
         navigate("/onlineGame", { replace: true });
     })
     gameSocket.on('PlayerInGame', ()=>{ // Player In Game ERROORRRR
-        console.log('PlayerInGame');
         SetShow(false);
     })
     return (
@@ -82,9 +78,9 @@ function GameRequest({SetShow ,gameRequestSender, onCancel, SetgoGame, setIsSend
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                             class="ai ai-Check"
                         >
                             <path d="M4 12l6 6L20 6" />
@@ -99,9 +95,9 @@ function GameRequest({SetShow ,gameRequestSender, onCancel, SetgoGame, setIsSend
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                             class="ai ai-Cross"
                         >
                             <path d="M20 20L4 4m16 0L4 20" />

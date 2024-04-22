@@ -16,6 +16,7 @@ import * as path from  'path'
 import { User } from "src/typeorm/entities/User";
 import * as fs from 'fs';
 import { FriendsService } from "src/friends/friends.service";
+import { GameService } from "src/game/game.service";
 
 
 
@@ -25,7 +26,7 @@ export class AuthController
 {
     
     constructor( private readonly authService: AuthService,
-    private jwtService: JwtService,private readonly websocketService: WebsocketService,private readonly twoFactorAuthenticationService: TwoFactorAuthenticationService,private readonly friendservice: FriendsService){
+    private jwtService: JwtService,private readonly websocketService: WebsocketService,private readonly twoFactorAuthenticationService: TwoFactorAuthenticationService,private readonly friendservice: FriendsService,private readonly gameservice: GameService){
     }
     @UseGuards(passlogin,IntraAuthGuard)//passlogin
     @Get('42')
@@ -117,8 +118,11 @@ export class AuthController
     async numofnotif(@Req() req:Request,@Res() res:Response)
     {
         const user = req.user as User;
-        const n = await this.authService.findnumberofnotif(user.id);
-        res.send(JSON.stringify(n));
+        if(user)
+        {
+            const n = await this.authService.findnumberofnotif(user.id);
+            res.send(JSON.stringify(n));
+        }
     }
     @Get('user')
     async getUser(@Req() req:Request,@Res() res:Response) {
@@ -152,21 +156,47 @@ export class AuthController
             
     }
     @Get('user/:id')
+    @UseGuards(jwtguard)
     async getUserbyid(@Req() req:Request,@Res() res:Response,@Param('id',ParseIntPipe) id: number) {
-        
-        const cookie = req.cookies['jwt'];
-        if(!cookie)
-            throw new UnauthorizedException();
-        const data = await this.jwtService.verifyAsync(cookie);
-        if(!data)
-        { 
-            throw new UnauthorizedException();
-        }
-        const user = await this.authService.findUser(id);
-        if(!user)
+        try{
+            const user = req.user as User;
+        const user1 = await this.authService.findUser(id);
+        if(!user1)
+        {
             throw new NotFoundException();
+        }
         else
-            res.send(user)
+        {
+            const games = await this.gameservice.findgames(user1);
+            let totalwin :number = 0;
+         for(let i = 0;i < games.length ; i++)
+            {
+                
+                if(games[i].winner.id== user1.id)
+                    totalwin++;
+            } 
+            const acheivment = await this.gameservice.acheivment(user1);
+            const userwitgames = {
+                id:user1.id,
+                avatar: user1.avatar,
+                login:user1.login,
+                games:games,
+                totalplayed:games.length,
+                wins: totalwin ,
+                loses:games.length - totalwin,
+                acheivment:acheivment,
+
+            }
+            res.send(userwitgames)
+        }
+        }
+        catch
+        {
+        
+            throw new NotFoundException();
+
+        }
+        
        
             
     }
@@ -184,7 +214,7 @@ export class AuthController
             const friends = await this.friendservice.findAllacceotedfriends(user);
             for(let i = 0; i < friends.length;i++)
             {
-                this.websocketService.emitToUser(friends[i].id.toString(),"friendRequestReceived");
+                this.websocketService.emitToUser(friends[i]?.id?.toString(),"friendRequestReceived");
             }
             res.send("ok");
         } 

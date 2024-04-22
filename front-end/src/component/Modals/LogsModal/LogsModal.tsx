@@ -54,7 +54,6 @@ function LogsModal({show, room, onCancel} : LogsModalProps) {
     }
 
     const handleUnban = (friendId: string) => {
-        console.log("clicked = ",friendId)
         axios.post(`${import.meta.env.VITE_url_back}/api/room/unbanuser`,{id: friendId, name: room.name}, {withCredentials:true});
     
     }
@@ -81,7 +80,7 @@ function LogsModal({show, room, onCancel} : LogsModalProps) {
                             </div>
                     
                             <div className="amis-infos">
-                                <p className="amis-name"><p>{friend.login}</p></p>
+                                <div className="amis-name"><p>{friend.login}</p></div>
                             </div>
                     
                             <div className="amis-status unblock" onClick={() => handleUnban(friend.id)}>Unban</div>
@@ -106,9 +105,9 @@ function LogsModal({show, room, onCancel} : LogsModalProps) {
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                             className="ai ai-Cross"
                         >
                             <path d="M20 20L4 4m16 0L4 20" />

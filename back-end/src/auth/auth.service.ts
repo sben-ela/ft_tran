@@ -65,11 +65,13 @@ export class AuthService{
         const user =  await this.userRepository.findOneBy({id:userid});
         if(status == "online")
           user.status = "online";
-        else if("offline")
+        else if(status == "offline")
           user.status = "offline";
+        else if(status == "ingame")
+          user.status = "ingame";  
         return await this.userRepository.save(user);
       }
-    async findnumberofnotif(userid:number) : Promise<number>{
+    async findnumberofnotif(userid:number) : Promise<number>{ 
 
       const numb = await this.userRepository.findOne({relations:["notif"],where:{
         id:userid

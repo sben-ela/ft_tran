@@ -38,10 +38,10 @@ function App() {
   const [gameRequestSender, SetSender] = useState(null);
 
 
-
+  
+  
   useEffect(()=>{
     socket?.on('updated', ()=> {
-      console.log('nice herre')
       setfetchuser((prevIsBool) => prevIsBool + 1)});
   }, [socket])
 
@@ -62,7 +62,7 @@ function App() {
         const resp = await axios.get(`${import.meta.env.VITE_url_back}/api/auth/user`, { withCredentials: true });
         setUser(resp.data);
         
-      } catch (error) {
+      } catch (error : any) {
         setError(error.response.data.message );
       }
     };
@@ -70,14 +70,21 @@ function App() {
   }, [fetchuser]);
 
 
-    
+  useEffect( () => {
+      const handleError = () => {
+        setErrorMessage('An error occurred: other user in acount');
+      };
+
+      socket?.on('secondwindow', handleError);
+
+  }, [socket])
 
   useEffect(() => {
-    const handleError = (mssg) => {
+    const handleError = (mssg : any) => {
       
       setErrorMessage(`An error occurred: ${mssg.type}`);
       setTimeout(() => {
-        setErrorMessage('');
+        setErrorMessage(''); 
       }, 1000);
     };
     
@@ -98,11 +105,9 @@ function App() {
   const [recieverName, setReacieverName] = useState("");
     useEffect(()=>{
       socket?.on('acceptGame', (recieverName) => {
-      console.log("acceptGame");
       setReacieverName(recieverName);
       setIsSender(true);
       SetgoGame(true);
-      console.log("isSender : ", isSender);
     })
   } ,[socket])
 

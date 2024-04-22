@@ -31,16 +31,20 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     client.use(socketmidd(this.jwtService, this.authService) as any)
   }
   async handleConnection(client: Socket) {
-    this.websocketService.addUserToMap(client.data.user.id, client);
+    if(this.websocketService.ifalreadyexist(client.data.user.id,client))
+    {
+      client.disconnect();
+      return;
+    }
+    await this.authService.changestatus(client.data.user.id,"online");
     const user = await this.authService.findUser(client.data.user.id);
+    this.websocketService.addUserToMap(client.data.user.id, client);
     const friends = await this.friendservice.findAllacceotedfriends(user);
     for(let i = 0; i < friends.length;i++)
     {
-      this.websocketService.emitToUser(friends[i].id.toString(),"friendRequestReceived");
+      this.websocketService.emitToUser(friends[i]?.id?.toString(),"friendRequestReceived");
     }
     client.join("brodcast");
-
-
   }
   async handleDisconnect(client: Socket) {
     this.websocketService.removeUserFromMap(client.data.user.id);
@@ -130,7 +134,6 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   async acceptGame(client: Socket,id:string)
   {
     this.websocketService.emitgameacccepttouser(id,client.data.user.login);
-    console.log("gateway acceptGame");
   }
 
   @SubscribeMessage('chatroomselected')
@@ -229,7 +232,6 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     }
     const bool: Boolean = this.websocketService.checking(payload.id.toString(), payload.name);
     if (bool == true) {
-      console.log(usermuted.login)
       this.websocketService.emitToUser(payload.id.toString(), "ileaved");
       this.websocketService.emitToUser(payload.id.toString(), "newmember");
     }
@@ -289,7 +291,6 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
       this.websocketService.emitToUser(String(members.members[i].id), "newmember");
       if(members.members[i].id == payload.id )
       {
-        console.log(usertoban.login)
         this.websocketService.emitToUser(payload.id.toString(), "ileaved");
 
       }
@@ -302,7 +303,6 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     const roomname = payload.name;
     const room = await this.roomService.findroom(roomname);
     const user = await this.roomService.muteuser(room, usermuted, user11);
-
     setTimeout(async () => {
       await this.roomService.unmuteuser(room, usermuted, user11);
       this.websocketService.emitToUser(payload.id.toString(), "newmember");

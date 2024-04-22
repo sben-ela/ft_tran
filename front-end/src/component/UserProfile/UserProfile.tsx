@@ -1,5 +1,5 @@
-import React from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useParams } from 'react-router-dom';
 import MenuBar from '../PunkProfile/MenuBar/MenuBar';
 import Infos from '../PunkProfile/Infos/infos';
 import ListMatch from './MatchHistory/Match';
@@ -11,28 +11,46 @@ import win3 from  '../../assets/3wins.png'
 import win4 from  '../../assets/4wins.png'
 import win5 from  '../../assets/5wins.png'
 import Popup from '../Modals/popup/Popup';
+import axios from 'axios';
 
 
 interface ProfileData {
   avatar: string;
   login: string;
-  isTwoFactorAuthenticationEnabled : boolean
+  isTwoFactorAuthenticationEnabled : boolean;
+  id : number;
+  acheivment : any;
+  games : any;
+  wins : any;
+  loses : any;
+  totalplayed : any;
+
 }
 interface UserinfoProps {
-  profileData : ProfileData;
+  profile : ProfileData;
 }
 
-const UserInfos = ({ profileData } : UserinfoProps) => {
+const NotFound = () => {
+  return (
+    <div className="not-found-container">
+        <div className='notfound'>
+          <h1 className="not-found-title">404 - Page Not Found</h1>
+        </div>
+    </div>
+  );
+};
+
+const UserInfos = ({ profile } : UserinfoProps) => {
   return (
     <div className="profile-container">
       <div className="player-infos">
-        {profileData ? (
+        {profile ? (
           <>
             <div className="ImgProfile">
-              <img src={profileData.avatar} alt="Profile" />
+              <img src={profile.avatar} alt="Profile" />
             </div>
             <div className="name">
-              <p>{profileData.login}</p>
+              <p>{profile.login}</p>
             </div>
           </>
         ) : (
@@ -47,16 +65,16 @@ const UserInfos = ({ profileData } : UserinfoProps) => {
         <div className="stats-container ">
           <div className='macthes'>
             <div className='matches-tit'>Matches</div>
-            {/* number of matches */}
+            <div className='ttmatches'>{profile.totalplayed}</div>
           </div>
           <div className='wins'>
             <div className='wins-tit'>Wins</div>
-            {/* porcentage of winss */}
+            <div className='ttwins'>{profile.wins}</div>
 
           </div>
           <div className='loses'>
             <div className='loses-tit'>Loses</div>
-            {/* porcentage of loses */}
+            <div className='ttloses'>{profile.loses}</div>
           </div>
         </div>
       </div>
@@ -65,50 +83,82 @@ const UserInfos = ({ profileData } : UserinfoProps) => {
   );
 }
 
-const Achievement: React.FC = () => {
+const Achievement = ({ profile } : UserinfoProps) => {
+
   const achievementsList = [
-    { name: 'one', image: win1 },
-    { name: 'two', image: win2 },
-    { name: 'three', image: win3 },
-    { name: 'four', image: win4 },
-    { name: 'five', image: win5 },
+    { name: '1win', image: win1 },
+    { name: '2wins', image: win2 },
+    { name: '3wins', image: win3 },
+    { name: '4wins', image: win4 },
+    { name: '5wins', image: win5 },
   ];
 
   return (
     <div className='achievements-container'>
       <div className='achi-title'>Achievements</div>
       <div className='achiv'>
-
-        {achievementsList.map((achievement, index) => (
+      {profile.acheivment.map((achievement: any, index:any) => {
+        const achievementData = achievementsList.find(a => a.name === achievement.name);
+        return(
           <div className='achievement-item' key={index}>
-              <Popup tooltip={`${achievement.name}`}>
-                <img src={achievement.image} alt={`Achievement ${index + 1}`} />
-              </Popup>
-            </div>
-        ))}
+            <Popup tooltip={`${achievement.name}`}>
+              <img src={achievementData ? achievementData.image : undefined} alt={`Achievement ${achievement.name}`} />
+            </Popup>
+          </div>
+        )
+
+      })}
       </div>
     </div>
   );
 };
-interface props {
-  setUser: React.Dispatch<React.SetStateAction<null>>;
-}
+
+
 
 const UserProfile = ( {setUser} : props) => {
   const location = useLocation();
   const userData: ProfileData = (location.state as any)?.userData;
+  const { userId } = useParams();
+  const [profile, SetProfile] = useState(null);
+  const [not, setnot] = useState('')
+  
+  useEffect(() =>  {
 
+    const getProfile = async () => {
+        
+      try {
+        const resp = await axios.get(`${import.meta.env.VITE_url_back}/api/auth/user/${userId}`, {
+          withCredentials: true,
+        });
+        SetProfile(resp.data);
 
-  // fetch achievment list 
-  // fetch listmatches
+        
+      } catch (error : any) {
+        setnot('404')
+      }
+    }
+
+    getProfile();
+
+  },[])
+
+  if(not == '404'){
+    return (
+      <NotFound />
+     )
+  }
 
   return (
     <div className='Userprofile'>
-      <div className='page'>
-        <UserInfos profileData={userData} />
-        <Achievement />
-        <ListMatch />
-      </div>
+      { profile &&
+          (
+            <div className='page'>
+                <UserInfos profile={profile} />
+                <Achievement  profile={profile}/>
+                <ListMatch profile={profile}/>
+            </div>
+          )  
+      }
       <MenuBar user={userData} setUser={setUser} />
     </div>
   )
