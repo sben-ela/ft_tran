@@ -28,14 +28,14 @@ export class AuthController
     constructor( private readonly authService: AuthService,
     private jwtService: JwtService,private readonly websocketService: WebsocketService,private readonly twoFactorAuthenticationService: TwoFactorAuthenticationService,private readonly friendservice: FriendsService,private readonly gameservice: GameService){
     }
-    @UseGuards(passlogin,IntraAuthGuard)//passlogin
+    @UseGuards(passlogin,IntraAuthGuard)
     @Get('42')
     @SetMetadata('isPublic', true)
     handlelogin(@Req() req,@Res() res){
        
      }
  
-    @UseGuards(passlogin,IntraAuthGuard)//passlogin
+    @UseGuards(passlogin,IntraAuthGuard)
     @Get('42/redirect')
     @SetMetadata('isPublic', true)
     async handleredirect(@Req() req,@Res({passthrough: true}) res: Response){
@@ -62,23 +62,36 @@ export class AuthController
             res.redirect(`${process.env.url_front}/Home`);
         }
         
-    } 
+    }
+    private isImageFile(filename: string): boolean {
+        const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
+        const ext = path.extname(filename).toLowerCase();
+        return allowedExtensions.includes(ext);
+      }
     @Post('update_user')
     @UseGuards(jwtguard)
     @UseInterceptors(FileInterceptor('avatar', {
         storage: diskStorage({
-          destination: './avatars', // Adjust the path as necessary
+          destination: './avatars',
           filename: (req, file, callback) => {
+           
             const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
             const filename = `${uniqueSuffix}${path.extname(file.originalname)}`;
             callback(null, filename);
           },
         }),
+        limits: {
+            fileSize: 5 * 1024 * 1024,
+          },
       }))
 
     async updateuser(@Req() req:Request,@Res() res:Response,  @UploadedFile() file: Express.Multer.File,@Body() body: any)
     {
         const user = req.user as User;
+        if (file && !this.isImageFile(file.originalname)) {
+            this.websocketService.emiterrorToUser(user.id.toString(),"error occured");
+            return res.status(400).send('Only image files are allowed');
+          }
         if(user.login != body.name )
         {
             if (body.name == "") { this.websocketService.emiterrorToUser(user.id.toString(),`empty name`)
@@ -128,22 +141,26 @@ export class AuthController
     async getUser(@Req() req:Request,@Res() res:Response) {
         try{
             const cookie = req.cookies['jwt']; 
-            if(!cookie)
-            {
-                throw new UnauthorizedException();
-            }
-            const data = await this.jwtService.verifyAsync(cookie);
-            if(!data)
-            {
-                throw new UnauthorizedException();
-            }
-            const user = await this.authService.findUser(data['id']);
-
-            if(user.HasAccess == false)
-            {
-                throw new UnauthorizedException("2FA");
-            }
             
+            if(!cookie)
+                {
+                    throw new UnauthorizedException();
+                }
+                const data = await this.jwtService.verifyAsync(cookie);
+
+                if(!data)
+                {
+                    throw new UnauthorizedException();
+                }
+                const user = await this.authService.findUser(data['id']);
+                   
+                
+            if(user.HasAccess == false)
+                {
+                    throw new UnauthorizedException("2FA");
+                }
+                
+               
             res.send(user)
         } 
         catch(e)
@@ -192,9 +209,7 @@ export class AuthController
         }
         catch
         {
-        
             throw new NotFoundException();
-
         }
         
        
@@ -211,11 +226,13 @@ export class AuthController
             res.clearCookie('jwt');
             user.status = "offline";
            await  this.authService.update(user);
+           
             const friends = await this.friendservice.findAllacceotedfriends(user);
             for(let i = 0; i < friends.length;i++)
             {
                 this.websocketService.emitToUser(friends[i]?.id?.toString(),"friendRequestReceived");
             }
+            this.websocketService.deletefrommap(user.id.toString());
             res.send("ok");
         } 
 

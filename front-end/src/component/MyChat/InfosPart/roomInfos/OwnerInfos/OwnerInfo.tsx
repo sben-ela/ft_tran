@@ -272,29 +272,36 @@ const Owner = ({room, RoomSelceted} : OwnerProps) => {
           </svg>
        
       </div>
+      {
+
+        showAdd &&
         <AddFriendModal
-          show={showAdd}
           friendName={friendName}
           setFriendName={setFriendName}
           onSubmit={handleFormSubmit}
           onCancel={handleCancel}
         />
-
+      }
+      {
+      showSetOwner 
+      &&
       <SetOwnerModal
-          room={room}
-          show={showSetOwner}
-          NewOwner={NewOwner}
-          setNewOwner={setNewOwner}
-          onSubmit={handleLeaveSubmit}
-          onCancel={handleCancel}
+        room={room}
+        NewOwner={NewOwner}
+        setNewOwner={setNewOwner}
+        onSubmit={handleLeaveSubmit}
+        onCancel={handleCancel}
       />
+    }
+      {
+        showLogs && 
+        <LogsModal
+            room={room}
+            onCancel={handleCancel}
+        />
+      }
 
-      <LogsModal
-          show={showLogs}
-          room={room}
-          onCancel={handleCancel}
-      />
-      <SettingsRoom show={ShowSettings} setShowSettings={setShowSettings} room={room}/>
+      {ShowSettings && <SettingsRoom  setShowSettings={setShowSettings} room={room}/>}
     </>
   );
 };
@@ -364,7 +371,6 @@ const RoomInfo = ({profile, room, RoomSelceted} : RoomInfoProps) => {
     SetRole(member.role);
   }
   
-
 
   return (
     <>

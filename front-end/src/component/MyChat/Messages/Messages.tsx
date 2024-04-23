@@ -6,34 +6,35 @@ import Profile from '../../Profile/Profile';
 import { Socket } from 'socket.io-client';
 import { useSocket } from '../../Socket';
 
+import grpImg from '../../../assets/groupImg.png'
 
 
 interface Message {
-    senderId: string;
+    senderId: number;
     content: string;
     senderavatar: string;
-  }
-  
-  interface User {
-    id: number;
-    avatar: string;
-    login: string;
-    status: string;
-  }
-  
-  interface Room {
-    name: string;
-    mestatus: string;
-  }
-  
-  interface MessagesProps {
-    optionSelected: any;
-    room: Room | null;
-    user: User | null;
-    profile: any;
-    MessagesData: Message[] | null;
-    MessagesRoom: Message[] | null;
-  }
+}
+
+interface User {
+id: number;
+avatar: string;
+login: string;
+status: any;
+}
+
+interface Room {
+name: string;
+mestatus: string;
+}
+
+interface MessagesProps {
+optionSelected: any;
+room: Room | null;
+user: User | null;
+profile: any;
+MessagesData: Message[] | null;
+MessagesRoom: Message[] | null;
+}
 
 
 const Messages = ({optionSelected ,room, user, profile, MessagesData, MessagesRoom} : MessagesProps) => {
@@ -55,6 +56,7 @@ const Messages = ({optionSelected ,room, user, profile, MessagesData, MessagesRo
     useEffect(()=>{
         socket?.on('muted', setstat)
     }, [socket])
+
   return (
 
     <div className='messages-container'> 
@@ -81,10 +83,10 @@ const Messages = ({optionSelected ,room, user, profile, MessagesData, MessagesRo
                 <div className= 'midlePart' key={user.id} > 
                     
                     <div className="new-chat"  >
-                        { MessagesData && MessagesData.map((message) => (
+                        { MessagesData && MessagesData.map((message , index) => (
                             
                                 <div
-                                    key={message.senderId}
+                                    key={index}
                                     className={`usermessage ${message.senderId === user.id ? 'stark' : 'parker'}`}>
                                     {message.content}
                                 </div>
@@ -108,7 +110,7 @@ const Messages = ({optionSelected ,room, user, profile, MessagesData, MessagesRo
                         room && 
                         <>
                             <div className="img-cont">
-                                <img  />
+                                <img src={grpImg} />
                             </div >
 
                             <div className="text">
@@ -125,12 +127,12 @@ const Messages = ({optionSelected ,room, user, profile, MessagesData, MessagesRo
                     <div className="new-chat">
                     
                         {
-                            MessagesRoom && MessagesRoom.map((message) => (
-                            <div key={message.senderId} className={`message-row ${message.senderId !== profile.id ? 'other' : 'mine'}`}>
+                            MessagesRoom && MessagesRoom.map((message, index) => (
+                            <div key={index} className={`message-row ${message.senderId !== profile.id ? 'other' : 'mine'}`}>
                                 {
                                     (message.senderId !== profile.id ? <img src={message.senderavatar} alt="sender" className="sender-img" /> : null)
                                 }
-                                <div className={`message ${message.senderId === profile.id ? 'othermsg' : 'mymsg'}`}>
+                                <div key={index} className={`message ${message.senderId === profile.id ? 'othermsg' : 'mymsg'}`}>
                                     {message.content}
                                 </div>
                                 

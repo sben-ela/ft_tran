@@ -29,16 +29,16 @@ import { Acheivment } from './typeorm/entities/acheivment';
 
 @Module({
   imports: [AuthModule,TypeOrmModule.forRoot({
-    type: 'postgres',
-    host: 'postgres',
-    port: 5432,
-    username: 'postgres',
-    password: 'saad',
-    database: 'pingpong_db',
+    type:'postgres',
+    host: `${process.env.DB_HOST}`,
+    port: Number(`${process.env.DB_PORT}`),
+    username: `${process.env.POSTGRES_USER}`,
+    password: `${process.env.POSTGRES_PASSWORD}`,
+    database: `${process.env.POSTGRES_DB}`,
     entities: [User,Friends,Chat,Message,Blocked,Room,RoomMember,Notif,Game,Acheivment],
     synchronize: true,
-  }),JwtModule.register({secret:"secret",
-  signOptions:{expiresIn:'1d'}})
+  }),JwtModule.register({secret:`${process.env.JWTSECRET}`,
+  signOptions:{expiresIn:'2h'}})
   ,
   PassportModule.register({session: true}),
   UsersModule,FriendsModule, ChatModule, RoomModule,ConfigModule.forRoot({
@@ -49,3 +49,4 @@ import { Acheivment } from './typeorm/entities/acheivment';
   providers: [AppService, RealtimeGateway,WebsocketService,GameGateway],
 }) 
 export class AppModule {} 
+

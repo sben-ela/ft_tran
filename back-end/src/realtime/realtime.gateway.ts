@@ -31,32 +31,41 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     client.use(socketmidd(this.jwtService, this.authService) as any)
   }
   async handleConnection(client: Socket) {
-    if(this.websocketService.ifalreadyexist(client.data.user.id,client))
+    if(client.data.user && this.websocketService.ifalreadyexist(client?.data?.user?.id,client))
     {
+
       client.disconnect();
       return;
     }
-    await this.authService.changestatus(client.data.user.id,"online");
-    const user = await this.authService.findUser(client.data.user.id);
-    this.websocketService.addUserToMap(client.data.user.id, client);
-    const friends = await this.friendservice.findAllacceotedfriends(user);
-    for(let i = 0; i < friends.length;i++)
+    if(client.data.user)
     {
-      this.websocketService.emitToUser(friends[i]?.id?.toString(),"friendRequestReceived");
-    }
-    client.join("brodcast");
-  }
-  async handleDisconnect(client: Socket) {
-    this.websocketService.removeUserFromMap(client.data.user.id);
-    await this.authService.changestatus(client.data.user.id, "offline");
-    const user = await this.authService.findUser(client.data.user.id);
-    const friends = await this.friendservice.findAllacceotedfriends(user);
-    for(let i = 0; i < friends.length;i++)
+      await this.authService.changestatus(client.data.user.id,"online");
+      const user = await this.authService.findUser(client.data.user.id);
+      this.websocketService.addUserToMap(client.data.user.id, client);
+      const friends = await this.friendservice.findAllacceotedfriends(user);
+      for(let i = 0; i < friends.length;i++)
       {
         this.websocketService.emitToUser(friends[i]?.id?.toString(),"friendRequestReceived");
       }
+      client.join("brodcast");
+    }
+    
+  }
+  async handleDisconnect(client: Socket) {
+    if(client.data.user)
+    {
+      this.websocketService.removeUserFromMap(client.data.user.id);
+      await this.authService.changestatus(client.data.user.id, "offline");
+      const user = await this.authService.findUser(client.data.user.id);
+      const friends = await this.friendservice.findAllacceotedfriends(user);
+      for(let i = 0; i < friends.length;i++)
+        {
+          this.websocketService.emitToUser(friends[i]?.id?.toString(),"friendRequestReceived");
+        }
 
-    client.leave("brodcast");
+      client.leave("brodcast");
+    }
+    
 
   }
   @SubscribeMessage('message')
@@ -67,6 +76,11 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     if (!friendship || !user11 || !user22)
       return;
     const chat1 = await this.chatService.findChatByFriendshipId({ friends: friendship, rooms: null });
+    if(payload.content == "" || payload.content.length > 100)
+    {
+      this.websocketService.emiterrorToUser(client.data.user.id,"message length");
+      return;
+    }
     const message = await this.chatService.createmessage({ content: payload.content, sendr: user11, chat: chat1 });
     await this.authService.createnotif({ type: "message", user: user22, sender: user11, room: null, isReaded: false });
     this.websocketService.emitmessgaetouser(client, payload)
@@ -80,7 +94,12 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     if (isallowedtosend && isallowedtosend.status == null) {
       const chat1 = await this.chatService.findChatByroomid({ friends: null, rooms: room });
       if (payload.content !== "") {
-        const message = await this.chatService.createmessage({ content: payload.content, sendr: user11, chat: chat1 });
+        if(payload.content == "" || payload.content.length > 100)
+          {
+            this.websocketService.emiterrorToUser(client.data.user.id,"message length");
+            return;
+          }
+          const message = await this.chatService.createmessage({ content: payload.content, sendr: user11, chat: chat1 });
         this.server.to(payload.roomname).emit('roomchat', payload.roomname);
         const memebers = await this.roomService.findroommembers(payload.roomname);
         for (let i = 0; i < memebers.members.length; i++) {
@@ -228,10 +247,13 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     for (let i = 0; i < members.members.length; i++) {
       const memberstatus = await this.roomService.getstatusofthemember(room,members.members[i]);
       if(!memberstatus.status || memberstatus.status =="muted")
+      {
         this.websocketService.emitToUser(String(members.members[i].id), "newmember");
+      }
     }
     const bool: Boolean = this.websocketService.checking(payload.id.toString(), payload.name);
     if (bool == true) {
+
       this.websocketService.emitToUser(payload.id.toString(), "ileaved");
       this.websocketService.emitToUser(payload.id.toString(), "newmember");
     }

@@ -10,6 +10,8 @@ import { Friends } from "src/typeorm/entities/friends";
 import { Message } from "src/typeorm/entities/message";
 import { Notif } from "src/typeorm/entities/notif";
 import { Room } from "src/typeorm/entities/rooms";
+import * as path from  'path'
+
 import { BlockedDtails, ChatDtails, FriendsDtails, MessageDtails, NotifDtails, RoomDtails, RoomMemberDtails, UserDetails } from "src/types/types";
 import { ILike, Like, Not, Repository} from "typeorm";
 
@@ -103,14 +105,18 @@ export class AuthService{
 
     async getnotifications(user:User)
     {
-      const notif = await this.userRepository.findOne({relations:["notif","notif.sender"],where:{
-        id:user.id
-      }});
-      const notreaded = notif.notif.filter((not)=> not.isReaded === false).map((not) => ({
-        type: not.type,
-        senderid: not.sender.id
-      }));
-      return notreaded;
+      if(user)
+      {
+        const notif = await this.userRepository.findOne({relations:["notif","notif.sender"],where:{
+          id:user.id
+        }});
+        const notreaded = notif.notif.filter((not)=> not.isReaded === false).map((not) => ({
+          type: not.type,
+          senderid: not.sender.id
+        }));
+        return notreaded;
+      }
+      
     }
     
     async updatenotification(type:string,user:User,senderid:number):Promise<void>
@@ -170,18 +176,4 @@ export class AuthService{
         }})
         return users;
       }
-    
-  
-  
-  
- 
-
-
-
-  
-  
-  
-  
-  
-  
 }
