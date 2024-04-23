@@ -7,7 +7,7 @@ import axios from 'axios'
 import { useSocket } from '../../../../Socket'
 import LogsModal from '../../../../Modals/LogsModal/LogsModal'
 import SettingsRoom from '../../../../Modals/SettingsRoom/SettingsRoom'
-
+import romImg from '../../../../../assets/groupImg.png'
 
 
 
@@ -383,7 +383,7 @@ const RoomInfo = ({profile, room, RoomSelceted} : RoomInfoProps) => {
               </div>
 
               <div className="Otherimg">
-                <img />
+                <img src={romImg}/>
               </div>
 
               <div className="Othername">
